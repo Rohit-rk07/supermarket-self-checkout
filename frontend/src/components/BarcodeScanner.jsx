@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { Html5QrcodeScanner } from "html5-qrcode";
+import { Html5QrcodeScanner,Html5QrcodeScanType } from "html5-qrcode";
 import { Dialog, DialogTitle, DialogContent, Button, Box } from "@mui/material";
 
 const BarcodeScanner = ({ onScan, closeScanner }) => {
@@ -16,6 +16,7 @@ const BarcodeScanner = ({ onScan, closeScanner }) => {
                 scannerRef.current = new Html5QrcodeScanner(scannerId, {
                     fps: 10,
                     qrbox: { width: 250, height: 250 },
+                    supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA, Html5QrcodeScanType.SCAN_TYPE_FILE] // 👈 Enable image upload
                 });
 
                 scannerRef.current.render(

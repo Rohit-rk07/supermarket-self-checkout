@@ -23,33 +23,32 @@ const Navbar = () => {
                 </Typography>
 
                 <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                    <IconButton onClick={() => navigate("/")}>
-                        <img src={scanIcon} alt="Scan" style={{ width: 50, cursor: "pointer" }} />
-                    </IconButton>
-                    <IconButton color="inherit" onClick={() => navigate("/cart")}>
-                        <ShoppingCartIcon sx={{ fontSize: 32, color: "white" }} />
-                    </IconButton>
+                    
 
                     {user ? (
-                        <>
-                            <IconButton onClick={handleMenuOpen}>
-                                <Avatar>{user.name[0]}</Avatar>
-                            </IconButton>
-                            <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
-                                <MenuItem disabled>👤 {user.name}</MenuItem>
-                                <MenuItem onClick={logout}>🚪 Logout</MenuItem>
-                            </Menu>
-                        </>
-                    ) : (
-                        <>
-                            <Button variant="outlined" color="inherit" onClick={() => navigate("/login")}>
-                                Login
-                            </Button>
-                            <Button variant="contained" color="secondary" onClick={() => navigate("/signup")}>
-                                Signup
-                            </Button>
-                        </>
-                    )}
+    <>
+        <IconButton onClick={handleMenuOpen}>
+            <Avatar>{user.displayName ? user.displayName[0] : user.email[0]}</Avatar>
+              
+        </IconButton>
+        <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
+            <MenuItem onClick={() => navigate("/account")}>👤 Account</MenuItem>
+            <MenuItem onClick={logout}>🚪 Logout</MenuItem>
+        </Menu>
+        
+    </>
+) : (
+    <>
+        <Button variant="outlined" color="inherit" onClick={() => navigate("/login")}>
+            Login
+        </Button>
+        <Button variant="contained" color="secondary" onClick={() => navigate("/signup")}>
+            Signup
+        </Button>
+    </>
+)}
+
+               
                 </div>
             </Toolbar>
         </AppBar>
