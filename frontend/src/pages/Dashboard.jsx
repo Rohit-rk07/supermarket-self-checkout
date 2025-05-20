@@ -19,7 +19,9 @@ const Dashboard = () => {
     const fetchProduct = async (barcode) => {
         try {
             console.log("🔍 Fetching for barcode:", barcode);
-            const response = await fetch(`http://localhost:8000/scan/${barcode}`);
+            const SERVER_URL = import.meta.env.VITE_SERVER_URL;
+            const response = await fetch(`${SERVER_URL}/scan/${barcode}`);
+
             if (!response.ok) throw new Error("Product not found");
 
             const product = await response.json();
