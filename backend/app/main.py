@@ -9,7 +9,7 @@ models.Base.metadata.create_all(bind=database.engine)
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  # React frontend URL
+    allow_origins=["http://localhost:5173","https://supermarket-self-checkout-wheat.vercel.app/"],  # React frontend URL
     allow_credentials=True,
     allow_methods=["*"],  # Allow all methods (GET, POST, etc.)
     allow_headers=["*"],  # Allow all headers
