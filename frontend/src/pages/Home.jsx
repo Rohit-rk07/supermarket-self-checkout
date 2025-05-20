@@ -12,7 +12,9 @@ const Home = () => {
     const fetchProduct = async (scannedBarcode) => {
         setBarcode(scannedBarcode);
         try {
-            const response = await axios.get(`http://localhost:8000/scan/${scannedBarcode}`);
+            const SERVER_URL = import.meta.env.VITE_SERVER_URL;
+            const response = await axios.get(`${SERVER_URL}/scan/${scannedBarcode}`);
+
             setProduct(response.data);
             setError("");
         } catch (err) {
