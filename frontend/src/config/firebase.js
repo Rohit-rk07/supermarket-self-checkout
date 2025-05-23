@@ -16,12 +16,12 @@ import { getStorage } from "firebase/storage";
 
 // Firebase configuration
 const firebaseConfig = {
-    apiKey: "AIzaSyBVwv78HQm1rYXewVr3AvEudcZt3PIM5PA",
-    authDomain: "supermarket-self-checkou-9d876.firebaseapp.com",
-    projectId: "supermarket-self-checkou-9d876",
-    storageBucket: "supermarket-self-checkou-9d876.firebasestorage.app",
-    messagingSenderId: "82635482664",
-    appId: "1:82635482664:web:52b97f7b2f49046509371d",
+    apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+    storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+    appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
 // Initialize Firebase services
