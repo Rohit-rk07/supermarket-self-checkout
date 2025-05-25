@@ -15,6 +15,7 @@ A full-stack self-checkout solution for supermarkets built with modern technolog
 1. **Install dependencies**:
 
 ```bash
+git clone https://github.com/Rohit-rk07/supermarket-self-checkout.git
 cd frontend
 npm install
 ```
