@@ -6,26 +6,16 @@ import {
     Typography, 
     Box, 
     CircularProgress, 
-    Alert,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogContentText,
-    DialogTitle
+    Alert
 } from "@mui/material";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
-import { sendPasswordResetEmail } from "firebase/auth";
-import { auth } from "../config/firebase";
 
 const LoginPage = () => {
     const { login, googleSignIn, error, user } = useAuth();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
-    const [resetEmail, setResetEmail] = useState("");
-    const [resetOpen, setResetOpen] = useState(false);
-    const [resetMessage, setResetMessage] = useState({ type: "", message: "" });
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -45,26 +35,6 @@ const LoginPage = () => {
         setLoading(false);
     };
 
-    const handleResetPassword = async () => {
-        if (!resetEmail) {
-            setResetMessage({ type: "error", message: "Please enter your email address" });
-            return;
-        }
-
-        try {
-            await sendPasswordResetEmail(auth, resetEmail);
-            setResetMessage({ 
-                type: "success", 
-                message: "Password reset email sent! Check your inbox." 
-            });
-            setTimeout(() => setResetOpen(false), 3000);
-        } catch (error) {
-            setResetMessage({ 
-                type: "error", 
-                message: "Failed to send reset email. Please check if the email is correct." 
-            });
-        }
-    };
 
     return (
         <Container maxWidth="sm" sx={{ mt: 5, p: 3, bgcolor: "white", borderRadius: 2, boxShadow: 3 }}>
@@ -101,14 +71,15 @@ const LoginPage = () => {
                 />
                 
                 <Box sx={{ textAlign: 'right', mt: 1 }}>
-                    <Button 
-                        variant="text" 
-                        color="primary" 
-                        size="small"
-                        onClick={() => setResetOpen(true)}
-                    >
-                        Forgot Password?
-                    </Button>
+                    <Link to="/forgot-password" style={{ textDecoration: 'none' }}>
+                        <Button 
+                            variant="text" 
+                            color="primary" 
+                            size="small"
+                        >
+                            Forgot Password?
+                        </Button>
+                    </Link>
                 </Box>
                 
                 <Button 
@@ -149,37 +120,6 @@ const LoginPage = () => {
                 </Typography>
             </Box>
 
-            {/* Password Reset Dialog */}
-            <Dialog open={resetOpen} onClose={() => setResetOpen(false)}>
-                <DialogTitle>Reset Password</DialogTitle>
-                <DialogContent>
-                    <DialogContentText>
-                        Enter your email address and we'll send you a link to reset your password.
-                    </DialogContentText>
-                    <TextField
-                        autoFocus
-                        margin="dense"
-                        label="Email Address"
-                        type="email"
-                        fullWidth
-                        variant="outlined"
-                        value={resetEmail}
-                        onChange={(e) => setResetEmail(e.target.value)}
-                    />
-                    {resetMessage.message && (
-                        <Alert 
-                            severity={resetMessage.type} 
-                            sx={{ mt: 2 }}
-                        >
-                            {resetMessage.message}
-                        </Alert>
-                    )}
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setResetOpen(false)}>Cancel</Button>
-                    <Button onClick={handleResetPassword}>Send Reset Link</Button>
-                </DialogActions>
-            </Dialog>
         </Container>
     );
 };

@@ -1,6 +1,4 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import { db } from "../config/firebase";
-import { collection, query, where, getDocs, addDoc, serverTimestamp, orderBy } from "firebase/firestore";
 import { useAuth } from "./AuthContext";
 
 const OrderContext = createContext();
@@ -14,7 +12,7 @@ export const OrderProvider = ({ children }) => {
     // Fetch orders when user changes
     useEffect(() => {
         const fetchOrders = async () => {
-            if (!user) {
+            if (!user || !user.token) {
                 setOrders([]);
                 setLoading(false);
                 return;
@@ -24,23 +22,19 @@ export const OrderProvider = ({ children }) => {
                 setLoading(true);
                 setError(null);
                 
-                const q = query(
-                    collection(db, "orders"),
-                    where("userId", "==", user.uid),
-                    orderBy("createdAt", "desc")
-                );
-                
-                const querySnapshot = await getDocs(q);
-                const ordersData = [];
-                
-                querySnapshot.forEach((doc) => {
-                    ordersData.push({
-                        id: doc.id,
-                        ...doc.data()
-                    });
+                const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/api/orders/my-orders`, {
+                    headers: {
+                        'Authorization': `Bearer ${user.token}`,
+                        'Content-Type': 'application/json'
+                    }
                 });
-                
-                setOrders(ordersData);
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch orders');
+                }
+
+                const data = await response.json();
+                setOrders(data.data.orders || []);
             } catch (err) {
                 console.error("Error fetching orders:", err);
                 setError("Failed to load order history. Please try again later.");
@@ -54,29 +48,35 @@ export const OrderProvider = ({ children }) => {
 
     // Create a new order
     const createOrder = async (orderData) => {
-        if (!user) return null;
+        if (!user || !user.token) return null;
 
         try {
-            const orderRef = await addDoc(collection(db, "orders"), {
-                ...orderData,
-                userId: user.uid,
-                userEmail: user.email,
-                createdAt: serverTimestamp(),
-                status: "completed"
+            const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/api/orders`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${user.token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    items: orderData.items.map(item => ({
+                        barcode: item.barcode,
+                        quantity: item.quantity || 1
+                    })),
+                    notes: orderData.notes || `Payment via ${orderData.paymentMethod}`,
+                    deliveryAddress: orderData.deliveryAddress
+                })
             });
-            
-            const newOrder = {
-                id: orderRef.id,
-                ...orderData,
-                userId: user.uid,
-                userEmail: user.email,
-                createdAt: new Date(),
-                status: "completed"
-            };
+
+            if (!response.ok) {
+                throw new Error('Failed to create order');
+            }
+
+            const data = await response.json();
+            const newOrder = data.data;
             
             setOrders(prevOrders => [newOrder, ...prevOrders]);
             
-            return orderRef.id;
+            return newOrder._id;
         } catch (err) {
             console.error("Error creating order:", err);
             setError("Failed to create order. Please try again.");

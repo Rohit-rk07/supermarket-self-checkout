@@ -1,15 +1,11 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import { auth, db } from "../config/firebase";
+import { auth } from "../config/firebase";
 import {
-    createUserWithEmailAndPassword,
-    signInWithEmailAndPassword,
     signOut,
     signInWithPopup,
     GoogleAuthProvider,
     onAuthStateChanged,
-    updateProfile,
 } from "firebase/auth";
-import { doc, setDoc, getDoc } from "firebase/firestore";
 
 // Create context
 const AuthContext = createContext(null);
@@ -24,11 +20,44 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
             if (currentUser) {
-                setUser({
-                    uid: currentUser.uid,
-                    displayName: currentUser.displayName || "User",
-                    email: currentUser.email,
-                });
+                try {
+                    // Get Firebase ID token
+                    const idToken = await currentUser.getIdToken();
+                    
+                    // Send to backend for JWT token
+                    const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/api/auth/firebase/login`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${idToken}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        setUser({
+                            uid: currentUser.uid,
+                            displayName: currentUser.displayName || "User",
+                            email: currentUser.email,
+                            token: data.data.token,
+                            role: data.data.user.role
+                        });
+                    } else {
+                        console.error('Failed to get JWT token');
+                        setUser({
+                            uid: currentUser.uid,
+                            displayName: currentUser.displayName || "User",
+                            email: currentUser.email,
+                        });
+                    }
+                } catch (error) {
+                    console.error('Auth token error:', error);
+                    setUser({
+                        uid: currentUser.uid,
+                        displayName: currentUser.displayName || "User",
+                        email: currentUser.email,
+                    });
+                }
             } else {
                 setUser(null);
             }
@@ -39,15 +68,39 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     // Signup with Email & Password
-    const signup = async (email, password, navigate) => {
+    const signup = async (email, password, displayName, navigate) => {
         try {
             setError("");
-            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-            await updateProfile(userCredential.user, { displayName: email.split("@")[0] });
-            navigate("/");
+            
+            const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/api/auth/register`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    email,
+                    password,
+                    displayName: displayName || email.split("@")[0]
+                })
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                setUser({
+                    uid: data.data.user.id,
+                    displayName: data.data.user.displayName,
+                    email: data.data.user.email,
+                    token: data.data.token,
+                    role: data.data.user.role
+                });
+                navigate("/");
+            } else {
+                const errorData = await response.json();
+                setError(errorData.message || "Registration failed");
+            }
         } catch (error) {
-            console.error("Signup error:", error.code);
-            setError(getErrorMessage(error.code));
+            console.error("Signup error:", error);
+            setError("Registration failed. Please try again.");
         }
     };
 
@@ -55,15 +108,32 @@ export const AuthProvider = ({ children }) => {
     const login = async (email, password, navigate) => {
         try {
             setError("");
-            const userCredential = await signInWithEmailAndPassword(auth, email, password);
-            setUser({
-                displayName: userCredential.user.displayName || "User",
-                email: userCredential.user.email,
+            
+            const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/api/auth/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email, password })
             });
-            navigate("/");
+            
+            if (response.ok) {
+                const data = await response.json();
+                setUser({
+                    uid: data.data.user.id,
+                    displayName: data.data.user.displayName,
+                    email: data.data.user.email,
+                    token: data.data.token,
+                    role: data.data.user.role
+                });
+                navigate("/");
+            } else {
+                const errorData = await response.json();
+                setError(errorData.message || "Login failed");
+            }
         } catch (error) {
-            console.error("Login error:", error.code);
-            setError(getErrorMessage(error.code));
+            console.error("Login error:", error);
+            setError("Login failed. Please try again.");
         }
     };
 
@@ -72,9 +142,15 @@ export const AuthProvider = ({ children }) => {
         try {
             setError("");
             const provider = new GoogleAuthProvider();
-            provider.setCustomParameters({ prompt: "select_account" });
+            provider.setCustomParameters({ 
+                prompt: "select_account",
+                access_type: "offline"
+            });
+            
             const result = await signInWithPopup(auth, provider);
-            setTimeout(() => navigate("/"), 500);
+            
+            // The onAuthStateChanged listener will handle the JWT token exchange
+            setTimeout(() => navigate("/"), 1000);
         } catch (error) {
             console.error("Google sign-in error:", error.code);
             setError(getErrorMessage(error.code));
@@ -114,6 +190,56 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    // Send OTP for password reset
+    const sendOTP = async (email) => {
+        try {
+            setError("");
+            const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/api/auth/otp/send`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email })
+            });
+            
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(data.message);
+            }
+            
+            return data;
+        } catch (error) {
+            console.error("Send OTP error:", error);
+            setError(error.message || "Failed to send OTP");
+            throw error;
+        }
+    };
+    
+    // Verify OTP and reset password
+    const verifyOTPAndResetPassword = async (email, otp, newPassword) => {
+        try {
+            setError("");
+            const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/api/auth/otp/verify`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email, otp, newPassword })
+            });
+            
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(data.message);
+            }
+            
+            return data;
+        } catch (error) {
+            console.error("Verify OTP error:", error);
+            setError(error.message || "Failed to reset password");
+            throw error;
+        }
+    };
+
     // Context value
     const value = {
         user,
@@ -122,7 +248,9 @@ export const AuthProvider = ({ children }) => {
         signup,
         login,
         googleSignIn,
-        logout
+        logout,
+        sendOTP,
+        verifyOTPAndResetPassword
     };
 
     // Return provider

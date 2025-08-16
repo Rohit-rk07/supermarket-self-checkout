@@ -8,6 +8,7 @@ const SignupPage = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
+    const [displayName, setDisplayName] = useState("");
     const [loading, setLoading] = useState(false);
     const [formError, setFormError] = useState("");
     const navigate = useNavigate();
@@ -43,7 +44,7 @@ const SignupPage = () => {
         if (!validateForm()) return;
         
         setLoading(true);
-        await signup(email, password, navigate);
+        await signup(email, password, displayName, navigate);
         setLoading(false);
     };
 
@@ -69,6 +70,15 @@ const SignupPage = () => {
             <Box component="form" onSubmit={handleSignup}>
                 <TextField 
                     fullWidth 
+                    label="Display Name" 
+                    variant="outlined" 
+                    margin="normal" 
+                    value={displayName} 
+                    onChange={(e) => setDisplayName(e.target.value)} 
+                    placeholder="Your full name"
+                />
+                <TextField 
+                    fullWidth 
                     label="Email" 
                     variant="outlined" 
                     margin="normal" 
@@ -86,6 +96,7 @@ const SignupPage = () => {
                     value={password} 
                     onChange={(e) => setPassword(e.target.value)} 
                     required 
+                    helperText="Password must be at least 6 characters"
                 />
                 <TextField 
                     fullWidth 
