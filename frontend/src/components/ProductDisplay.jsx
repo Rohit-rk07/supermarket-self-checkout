@@ -1,6 +1,4 @@
 const ProductDisplay = ({ product, error }) => {
-    console.log("Received Product Data:", product); // Debugging
-
     return (
         <div style={{ padding: "10px", border: "1px solid #ccc", borderRadius: "5px", marginTop: "10px" }}>
             {error ? (

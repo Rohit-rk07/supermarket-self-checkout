@@ -35,7 +35,7 @@ const countryCodes = [
 ];
 
 const LoginPage = () => {
-  const { sendPhoneOTP, verifyPhoneOTP, completeRegistration, error } = useAuth();
+  const { sendPhoneOTP, verifyPhoneOTP, completeRegistration, login, error } = useAuth();
   const [countryCode, setCountryCode] = useState('+91');
   const [phoneNumber, setPhoneNumber] = useState("");
   const [otp, setOtp] = useState("");

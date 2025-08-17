@@ -12,8 +12,21 @@ export const AuthProvider = ({ children }) => {
     // Check for existing token on app load
     useEffect(() => {
         const checkAuthState = async () => {
-            const token = localStorage.getItem('authToken');
+            const token = localStorage.getItem('token') || localStorage.getItem('authToken');
             if (token) {
+                // Handle demo user
+                if (token === 'demo-token') {
+                    const demoUser = localStorage.getItem('user');
+                    if (demoUser) {
+                        setUser({
+                            ...JSON.parse(demoUser),
+                            token: token
+                        });
+                        setLoading(false);
+                        return;
+                    }
+                }
+
                 try {
                     // Verify token with backend
                     const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/api/auth/profile`, {
@@ -36,11 +49,13 @@ export const AuthProvider = ({ children }) => {
                     } else {
                         // Token is invalid, remove it
                         localStorage.removeItem('authToken');
+                        localStorage.removeItem('token');
                         setUser(null);
                     }
                 } catch (error) {
                     console.error('Auth check error:', error);
                     localStorage.removeItem('authToken');
+                    localStorage.removeItem('token');
                     setUser(null);
                 }
             }
@@ -49,6 +64,23 @@ export const AuthProvider = ({ children }) => {
 
         checkAuthState();
     }, []);
+
+    // Login function for demo and regular users
+    const login = async (userData) => {
+        try {
+            setUser({
+                ...userData.user,
+                token: userData.token
+            });
+            localStorage.setItem('token', userData.token);
+            if (userData.user) {
+                localStorage.setItem('user', JSON.stringify(userData.user));
+            }
+        } catch (error) {
+            console.error('Login error:', error);
+            throw error;
+        }
+    };
 
     // Send OTP to phone number
     const sendPhoneOTP = async (phoneNumber) => {
@@ -93,7 +125,7 @@ export const AuthProvider = ({ children }) => {
             }
             
             // Store token
-            localStorage.setItem('authToken', data.data.token);
+            localStorage.setItem('token', data.data.token);
             
             setUser({
                 id: data.data.user._id,
@@ -150,6 +182,7 @@ export const AuthProvider = ({ children }) => {
     const logout = async () => {
         try {
             localStorage.removeItem('authToken');
+            localStorage.removeItem('token');
             setUser(null);
         } catch (error) {
             console.error("Logout error:", error.message);
@@ -197,6 +230,7 @@ export const AuthProvider = ({ children }) => {
         verifyPhoneOTP,
         completeRegistration,
         updateProfile,
+        login,
         logout
     };
 

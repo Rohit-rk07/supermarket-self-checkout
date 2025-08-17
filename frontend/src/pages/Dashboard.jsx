@@ -39,9 +39,8 @@ const Dashboard = () => {
 
   const fetchProduct = async (barcode) => {
     try {
-      console.log("🔍 Fetching for barcode:", barcode);
       const SERVER_URL = import.meta.env.VITE_SERVER_URL;
-      const response = await fetch(`${SERVER_URL}/scan/${barcode}`);
+      const response = await fetch(`${SERVER_URL}/api/v1/scan/${barcode}`);
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -49,7 +48,6 @@ const Dashboard = () => {
       }
 
       const result = await response.json();
-      console.log("📦 Product Fetched:", result);
       
       // Handle new API response format
       const product = result.success ? result.data : result;
