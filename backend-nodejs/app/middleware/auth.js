@@ -1,14 +1,5 @@
 import jwt from 'jsonwebtoken';
-import admin from 'firebase-admin';
 import User from '../models/User.js';
-
-// Initialize Firebase Admin SDK
-if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.applicationDefault(),
-    // You can add your Firebase project config here if needed
-  });
-}
 
 // JWT Authentication Middleware
 export const authenticateJWT = async (req, res, next) => {
@@ -68,62 +59,6 @@ export const authenticateJWT = async (req, res, next) => {
   }
 };
 
-// Firebase Authentication Middleware
-export const authenticateFirebase = async (req, res, next) => {
-  try {
-    const authHeader = req.headers.authorization;
-    
-    if (!authHeader) {
-      return res.status(401).json({ 
-        success: false, 
-        message: 'Firebase token required' 
-      });
-    }
-
-    const idToken = authHeader.split(' ')[1]; // Bearer TOKEN
-    
-    if (!idToken) {
-      return res.status(401).json({ 
-        success: false, 
-        message: 'Firebase token required' 
-      });
-    }
-
-    // Verify Firebase ID token
-    const decodedToken = await admin.auth().verifyIdToken(idToken);
-    
-    // Find or create user in MongoDB
-    let user = await User.findOne({ firebaseUid: decodedToken.uid });
-    
-    if (!user) {
-      // Create new user if doesn't exist
-      user = new User({
-        firebaseUid: decodedToken.uid,
-        email: decodedToken.email,
-        displayName: decodedToken.name || decodedToken.email.split('@')[0],
-        authProvider: 'google',
-        isEmailVerified: decodedToken.email_verified || false,
-        lastLogin: new Date()
-      });
-      await user.save();
-    } else {
-      // Update last login
-      user.lastLogin = new Date();
-      await user.save();
-    }
-
-    req.user = user;
-    req.firebaseUser = decodedToken;
-    next();
-  } catch (error) {
-    console.error('Firebase auth error:', error);
-    return res.status(401).json({ 
-      success: false, 
-      message: 'Invalid Firebase token' 
-    });
-  }
-};
-
 // Role-based authorization middleware
 export const authorize = (...roles) => {
   return (req, res, next) => {
@@ -154,7 +89,7 @@ export const generateJWT = (userId) => {
   );
 };
 
-// Optional authentication (for public endpoints that can benefit from user context)
+// Optional authentication (for public endpoints)
 export const optionalAuth = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;

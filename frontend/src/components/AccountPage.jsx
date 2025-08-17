@@ -1,24 +1,28 @@
 import { useState } from "react";
-import { 
-    Container, 
-    Typography, 
-    Paper, 
-    Box, 
-    Tab, 
-    Tabs, 
-    Divider, 
-    Avatar, 
-    List, 
-    ListItem, 
-    ListItemText, 
-    Grid, 
-    CircularProgress, 
-    Alert, 
-    Chip, 
+import {
+    Container,
+    Typography,
     Button,
+    Box,
+    Paper,
+    Grid,
+    Divider,
+    Avatar,
+    Chip,
+    Tab,
+    Tabs,
     Card,
     CardContent,
-    useTheme
+    List,
+    ListItem,
+    ListItemText,
+    ListItemIcon,
+    IconButton,
+    useTheme,
+    useMediaQuery,
+    Fab,
+    Stack,
+    Badge
 } from "@mui/material";
 import { 
     Person, 
@@ -26,7 +30,10 @@ import {
     ReceiptLong, 
     ShoppingBag, 
     DateRange, 
-    AttachMoney
+    AttachMoney,
+    ArrowBack,
+    Phone,
+    Logout
 } from "@mui/icons-material";
 import { useAuth } from "../context/AuthContext";
 import { useOrders } from "../context/OrderContext";
@@ -38,6 +45,7 @@ const AccountPage = () => {
     const [activeTab, setActiveTab] = useState(0);
     const navigate = useNavigate();
     const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
     const handleTabChange = (event, newValue) => {
         setActiveTab(newValue);
@@ -55,70 +63,119 @@ const AccountPage = () => {
     }
 
     return (
-        <Container maxWidth="lg" sx={{ mt: 4, mb: 8 }}>
-            <Grid container spacing={3}>
-                {/* Sidebar */}
-                <Grid item xs={12} md={4} lg={3}>
-                    <Paper elevation={2} sx={{ p: 3, borderRadius: 2, mb: 3 }}>
-                        <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", mb: 3 }}>
-                            <Avatar 
-                                sx={{ 
-                                    width: 80, 
-                                    height: 80, 
-                                    bgcolor: theme.palette.primary.main,
-                                    fontSize: 32,
-                                    mb: 2
-                                }}
-                            >
-                                {user.displayName ? user.displayName[0].toUpperCase() : "U"}
-                            </Avatar>
-                            <Typography variant="h6" fontWeight="bold">
-                                {user.displayName || "User"}
-                            </Typography>
-                            <Typography variant="body2" color="text.secondary">
-                                {user.email}
-                            </Typography>
-                        </Box>
-                        
-                        <Divider sx={{ my: 2 }} />
-                        
-                        <Tabs
-                            orientation="vertical"
-                            value={activeTab}
-                            onChange={handleTabChange}
-                            sx={{ borderRight: 1, borderColor: 'divider' }}
+        <Box sx={{ 
+            minHeight: '100vh', 
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            py: 4
+        }}>
+            <Container maxWidth="lg">
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 4 }}>
+                    <Avatar sx={{ bgcolor: 'rgba(255,255,255,0.2)', mr: 2, width: 56, height: 56 }}>
+                        <Person sx={{ fontSize: 32, color: 'white' }} />
+                    </Avatar>
+                    <Typography 
+                        variant="h3" 
+                        fontWeight="bold" 
+                        sx={{ 
+                            color: 'white',
+                            textShadow: '0 2px 4px rgba(0,0,0,0.3)'
+                        }}
+                    >
+                        My Account
+                    </Typography>
+                </Box>
+                <Grid container spacing={3}>
+                    {/* Sidebar */}
+                    <Grid item xs={12} md={4} lg={3}>
+                        <Card 
+                            elevation={24}
+                            sx={{ 
+                                borderRadius: 4,
+                                background: 'rgba(255, 255, 255, 0.95)',
+                                backdropFilter: 'blur(20px)',
+                                border: '1px solid rgba(255, 255, 255, 0.2)',
+                                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+                            }}
                         >
-                            <Tab 
-                                icon={<Person sx={{ mr: 1 }} />} 
-                                label="Profile" 
-                                iconPosition="start"
-                                sx={{ alignItems: "flex-start", textAlign: "left" }}
-                            />
-                            <Tab 
-                                icon={<History sx={{ mr: 1 }} />} 
-                                label="Order History" 
-                                iconPosition="start"
-                                sx={{ alignItems: "flex-start", textAlign: "left" }}
-                            />
-                        </Tabs>
-                        
-                        <Button
-                            variant="outlined"
-                            color="error"
-                            fullWidth
-                            sx={{ mt: 3 }}
-                            onClick={handleLogout}
-                        >
-                            Log Out
-                        </Button>
-                    </Paper>
+                            <CardContent sx={{ textAlign: 'center', p: 3 }}>
+                                <Avatar 
+                                    sx={{ 
+                                        width: 80, 
+                                        height: 80, 
+                                        bgcolor: theme.palette.primary.main,
+                                        fontSize: 32,
+                                        mb: 2,
+                                        mx: 'auto'
+                                    }}
+                                >
+                                    {user.name ? user.name[0].toUpperCase() : "U"}
+                                </Avatar>
+                                <Typography variant="h6" fontWeight="bold" gutterBottom>
+                                    {user.name || "User"}
+                                </Typography>
+                                <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                                    {user.email || user.phoneNumber}
+                                </Typography>
+                                
+                                <Divider sx={{ my: 2 }} />
+                                
+                                <Tabs
+                                    orientation="vertical"
+                                    value={activeTab}
+                                    onChange={handleTabChange}
+                                    sx={{ 
+                                        '& .MuiTab-root': {
+                                            alignItems: 'flex-start',
+                                            textAlign: 'left',
+                                            minHeight: 48
+                                        }
+                                    }}
+                                >
+                                    <Tab 
+                                        icon={<Person sx={{ mr: 1 }} />} 
+                                        label="Profile" 
+                                        iconPosition="start"
+                                    />
+                                    <Tab 
+                                        icon={<History sx={{ mr: 1 }} />} 
+                                        label="Order History" 
+                                        iconPosition="start"
+                                    />
+                                </Tabs>
+                                
+                                <Button
+                                    variant="contained"
+                                    color="error"
+                                    fullWidth
+                                    startIcon={<Logout />}
+                                    onClick={handleLogout}
+                                    sx={{ 
+                                        mt: 3,
+                                        borderRadius: 2,
+                                        py: 1.2
+                                    }}
+                                >
+                                    Logout
+                                </Button>
+                            </CardContent>
+                        </Card>
                 </Grid>
                 
                 {/* Main Content */}
                 <Grid item xs={12} md={8} lg={9}>
                     {/* Profile Tab */}
                     {activeTab === 0 && (
-                        <Paper elevation={2} sx={{ p: 3, borderRadius: 2 }}>
+                        <Card 
+                            elevation={24} 
+                            sx={{ 
+                                borderRadius: 4,
+                                background: 'rgba(255, 255, 255, 0.95)',
+                                backdropFilter: 'blur(20px)',
+                                border: '1px solid rgba(255, 255, 255, 0.2)',
+                                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+                            }}
+                        >
+                            <CardContent sx={{ p: 4 }}>
                             <Typography variant="h5" fontWeight="bold" sx={{ mb: 3 }}>
                                 <Person sx={{ mr: 1, verticalAlign: "middle" }} />
                                 My Profile
@@ -130,15 +187,27 @@ const AccountPage = () => {
                                         Full Name
                                     </Typography>
                                     <Typography variant="body1" fontWeight="medium" sx={{ mb: 2 }}>
-                                        {user.displayName || "Not set"}
+                                        {user.name || "Not set"}
                                     </Typography>
                                     
                                     <Typography variant="subtitle2" color="text.secondary">
-                                        Email Address
+                                        Phone Number
                                     </Typography>
                                     <Typography variant="body1" fontWeight="medium" sx={{ mb: 2 }}>
-                                        {user.email}
+                                        <Phone sx={{ mr: 1, fontSize: 16, verticalAlign: 'middle' }} />
+                                        {user.phoneNumber}
                                     </Typography>
+                                    
+                                    {user.email && (
+                                        <>
+                                            <Typography variant="subtitle2" color="text.secondary">
+                                                Email Address
+                                            </Typography>
+                                            <Typography variant="body1" fontWeight="medium" sx={{ mb: 2 }}>
+                                                {user.email}
+                                            </Typography>
+                                        </>
+                                    )}
                                 </Grid>
                                 
                                 <Grid item xs={12} sm={6}>
@@ -146,7 +215,7 @@ const AccountPage = () => {
                                         Account Type
                                     </Typography>
                                     <Typography variant="body1" fontWeight="medium" sx={{ mb: 2 }}>
-                                        {user.email.includes("@gmail.com") ? "Google Account" : "Email Account"}
+                                        Phone Authentication
                                     </Typography>
                                     
                                     <Typography variant="subtitle2" color="text.secondary">
@@ -157,12 +226,23 @@ const AccountPage = () => {
                                     </Typography>
                                 </Grid>
                             </Grid>
-                        </Paper>
+                            </CardContent>
+                        </Card>
                     )}
                     
                     {/* Order History Tab */}
                     {activeTab === 1 && (
-                        <Paper elevation={2} sx={{ p: 3, borderRadius: 2 }}>
+                        <Card 
+                            elevation={24} 
+                            sx={{ 
+                                borderRadius: 4,
+                                background: 'rgba(255, 255, 255, 0.95)',
+                                backdropFilter: 'blur(20px)',
+                                border: '1px solid rgba(255, 255, 255, 0.2)',
+                                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+                            }}
+                        >
+                            <CardContent sx={{ p: 4 }}>
                             <Typography variant="h5" fontWeight="bold" sx={{ mb: 3 }}>
                                 <ReceiptLong sx={{ mr: 1, verticalAlign: "middle" }} />
                                 Order History
@@ -202,7 +282,7 @@ const AccountPage = () => {
                                             <CardContent>
                                                 <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
                                                     <Typography variant="h6" fontWeight="medium">
-                                                        Order #{order.id.slice(-6).toUpperCase()}
+                                                        Order #{order.orderNumber ? order.orderNumber : (order._id ? order._id.slice(-6).toUpperCase() : 'N/A')}
                                                     </Typography>
                                                     <Chip 
                                                         label={order.status} 
@@ -215,19 +295,19 @@ const AccountPage = () => {
                                                     <Box sx={{ display: "flex", alignItems: "center" }}>
                                                         <DateRange fontSize="small" sx={{ mr: 0.5, color: "text.secondary" }} />
                                                         <Typography variant="body2" color="text.secondary">
-                                                            {order.createdAt.toDate().toLocaleDateString()}
+                                                            {order.createdAt ? new Date(order.createdAt).toLocaleDateString() : 'N/A'}
                                                         </Typography>
                                                     </Box>
                                                     <Box sx={{ display: "flex", alignItems: "center" }}>
                                                         <AttachMoney fontSize="small" sx={{ mr: 0.5, color: "text.secondary" }} />
                                                         <Typography variant="body2" color="text.secondary">
-                                                            ${order.total.toFixed(2)}
+                                                            ₹{order.total ? order.total.toFixed(2) : '0.00'}
                                                         </Typography>
                                                     </Box>
                                                     <Box sx={{ display: "flex", alignItems: "center" }}>
                                                         <ShoppingBag fontSize="small" sx={{ mr: 0.5, color: "text.secondary" }} />
                                                         <Typography variant="body2" color="text.secondary">
-                                                            {order.items.length} {order.items.length === 1 ? "item" : "items"}
+                                                            {order.items ? order.items.length : 0} {(order.items && order.items.length === 1) ? "item" : "items"}
                                                         </Typography>
                                                     </Box>
                                                 </Box>
@@ -235,19 +315,19 @@ const AccountPage = () => {
                                                 <Divider sx={{ mb: 2 }} />
                                                 
                                                 <List dense>
-                                                    {order.items.slice(0, 3).map((item, idx) => (
+                                                    {(order.items || []).slice(0, 3).map((item, idx) => (
                                                         <ListItem key={idx} disableGutters>
                                                             <ListItemText
                                                                 primary={item.name}
-                                                                secondary={`${item.quantity || 1} × $${item.price.toFixed(2)}`}
+                                                                secondary={`${item.quantity || 1} × ₹${item.price ? item.price.toFixed(2) : '0.00'}`}
                                                             />
                                                             <Typography variant="body2" fontWeight="medium">
-                                                                ${((item.quantity || 1) * item.price).toFixed(2)}
+                                                                ₹{((item.quantity || 1) * (item.price || 0)).toFixed(2)}
                                                             </Typography>
                                                         </ListItem>
                                                     ))}
                                                     
-                                                    {order.items.length > 3 && (
+                                                    {(order.items && order.items.length > 3) && (
                                                         <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
                                                             +{order.items.length - 3} more items
                                                         </Typography>
@@ -259,7 +339,7 @@ const AccountPage = () => {
                                                 <Box sx={{ display: "flex", justifyContent: "space-between" }}>
                                                     <Typography variant="subtitle2">Total</Typography>
                                                     <Typography variant="subtitle1" fontWeight="bold">
-                                                        ${order.total.toFixed(2)}
+                                                        ₹{order.total ? order.total.toFixed(2) : '0.00'}
                                                     </Typography>
                                                 </Box>
                                             </CardContent>
@@ -267,11 +347,30 @@ const AccountPage = () => {
                                     ))}
                                 </List>
                             )}
-                        </Paper>
+                            </CardContent>
+                        </Card>
                     )}
                 </Grid>
             </Grid>
+            
+            {/* Floating Back Button */}
+            <Fab
+                color="secondary"
+                sx={{
+                    position: 'fixed',
+                    bottom: 24,
+                    left: 24,
+                    background: 'rgba(255, 255, 255, 0.9)',
+                    '&:hover': {
+                        background: 'rgba(255, 255, 255, 1)',
+                    }
+                }}
+                onClick={() => navigate('/dashboard')}
+            >
+                <ArrowBack />
+            </Fab>
         </Container>
+        </Box>
     );
 };
 

@@ -10,8 +10,8 @@ import { validateRequest, productSchema } from '../middleware/validation.js';
 
 const router = express.Router();
 
-// GET /scan/{barcode} - Main barcode scanning endpoint
-router.get('/scan/:barcode', getProductByBarcode);
+// GET /{barcode} - Main barcode scanning endpoint (mounted on /scan)
+router.get('/:barcode', getProductByBarcode);
 
 // GET /products - Get all products
 router.get('/products', getAllProducts);

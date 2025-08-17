@@ -39,7 +39,11 @@ const orderSchema = new mongoose.Schema({
     required: true,
     index: true
   },
-  userEmail: {
+  userPhone: {
+    type: String,
+    required: true
+  },
+  userName: {
     type: String,
     required: true
   },

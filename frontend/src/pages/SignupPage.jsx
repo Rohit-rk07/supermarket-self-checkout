@@ -4,7 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 
 const SignupPage = () => {
-    const { signup, googleSignIn, error } = useAuth();
+    const { error } = useAuth();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
@@ -38,21 +38,15 @@ const SignupPage = () => {
         return true;
     };
 
-    // Handle Email/Password Signup
+    // Handle redirect to login (signup not supported in phone auth)
     const handleSignup = async (e) => {
         e.preventDefault();
-        if (!validateForm()) return;
-        
-        setLoading(true);
-        await signup(email, password, displayName, navigate);
-        setLoading(false);
+        navigate('/login');
     };
 
-    // Handle Google Signup
+    // Handle redirect to login
     const handleGoogleSignup = async () => {
-        setLoading(true);
-        await googleSignIn(navigate);
-        setLoading(false);
+        navigate('/login');
     };
 
     return (
@@ -61,11 +55,9 @@ const SignupPage = () => {
                 Create Account
             </Typography>
             
-            {(error || formError) && (
-                <Alert severity="error" sx={{ mb: 2 }}>
-                    {formError || error}
-                </Alert>
-            )}
+            <Alert severity="info" sx={{ mb: 2 }}>
+                Account creation is handled through phone verification. Please use the login page.
+            </Alert>
             
             <Box component="form" onSubmit={handleSignup}>
                 <TextField 
@@ -117,7 +109,7 @@ const SignupPage = () => {
                     sx={{ mt: 2 }}
                     disabled={loading}
                 >
-                    {loading ? <CircularProgress size={24} /> : "Sign Up"}
+                    {loading ? <CircularProgress size={24} /> : "Go to Login"}
                 </Button>
             </Box>
 

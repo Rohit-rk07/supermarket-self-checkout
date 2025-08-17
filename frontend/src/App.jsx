@@ -1,46 +1,33 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { ThemeProvider, createTheme, CssBaseline } from "@mui/material";
+import { ThemeProvider, CssBaseline } from "@mui/material";
 import { CartProvider } from "./context/CartContext";
 import { AuthProvider } from "./context/AuthContext";
-import { OrderProvider } from "./context/OrderContext" 
+import { OrderProvider } from "./context/OrderContext"; 
 import Dashboard from "./pages/Dashboard";
 import CartPage from "./pages/CartPage";
 import Checkout from "./components/checkout";
 import LoginPage from "./pages/LoginPage";
-import SignupPage from "./pages/SignupPage";
 import BarcodeScanner from "./components/BarcodeScanner";
 import AccountPage from "./components/AccountPage";
-import ForgotPassword from "./components/ForgotPassword";
-
-
-const theme = createTheme({
-    palette: {
-        mode: "light",
-        primary: { main: "#1976d2" },
-        secondary: { main: "#ff4081" },
-    },
-    typography: {
-        fontFamily: "Roboto, Arial, sans-serif",
-    },
-});
+import ProtectedRoute from "./components/ProtectedRoute";
+import { theme } from "./theme/theme";
 
 function App() {
     return (
         <ThemeProvider theme={theme}>
             <CssBaseline />
-            <Router> {/* ✅ Move Router to the top */}
-                <AuthProvider> {/* Now inside Router ✅ */}
+            <Router> 
+                <AuthProvider> 
                     <CartProvider>
                         <OrderProvider>
                             <Routes>
-                                <Route path="/" element={<Dashboard />} />
-                                <Route path="/cart" element={<CartPage />} />
-                                <Route path="/checkout" element={<Checkout />} />
+                                <Route path="/" element={<LoginPage />} />
                                 <Route path="/login" element={<LoginPage />} />
-                                <Route path="/signup" element={<SignupPage />} />
-                                <Route path="/forgot-password" element={<ForgotPassword />} />
-                                <Route path="/BarcodeScanner" element={<BarcodeScanner />} />
-                                <Route path="/account" element={<AccountPage />} />
+                                <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+                                <Route path="/cart" element={<ProtectedRoute><CartPage /></ProtectedRoute>} />
+                                <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
+                                <Route path="/BarcodeScanner" element={<ProtectedRoute><BarcodeScanner /></ProtectedRoute>} />
+                                <Route path="/account" element={<ProtectedRoute><AccountPage /></ProtectedRoute>} />
                             </Routes>
                         </OrderProvider>
                     </CartProvider>

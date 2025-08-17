@@ -22,7 +22,7 @@ export const OrderProvider = ({ children }) => {
                 setLoading(true);
                 setError(null);
                 
-                const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/api/orders/my-orders`, {
+                const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/api/v1/orders/my-orders`, {
                     headers: {
                         'Authorization': `Bearer ${user.token}`,
                         'Content-Type': 'application/json'
@@ -51,7 +51,7 @@ export const OrderProvider = ({ children }) => {
         if (!user || !user.token) return null;
 
         try {
-            const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/api/orders`, {
+            const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/api/v1/orders`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${user.token}`,

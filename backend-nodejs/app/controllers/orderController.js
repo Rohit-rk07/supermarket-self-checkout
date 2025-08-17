@@ -7,7 +7,8 @@ export const createOrder = async (req, res) => {
   try {
     const { items, notes, deliveryAddress } = req.body;
     const userId = req.user._id;
-    const userEmail = req.user.email;
+    const userPhone = req.user.phoneNumber;
+    const userName = req.user.name;
 
     // Validate items and calculate total
     const orderItems = [];
@@ -37,12 +38,21 @@ export const createOrder = async (req, res) => {
       total += subtotal;
     }
 
+    // Generate order number
+    const timestamp = Date.now().toString(36);
+    const random = Math.random().toString(36).substr(2, 5);
+    const orderNumber = `ORD-${timestamp}-${random}`.toUpperCase();
+
+    console.log('🔢 Generated order number:', orderNumber);
+
     // Create order
     const order = new Order({
       userId,
-      userEmail,
+      userPhone,
+      userName,
       items: orderItems,
       total,
+      orderNumber,
       notes,
       deliveryAddress
     });
@@ -216,7 +226,7 @@ export const getAllOrders = async (req, res) => {
     if (paymentStatus) query.paymentStatus = paymentStatus;
 
     const orders = await Order.find(query)
-      .populate('userId', 'displayName email')
+      .populate('userId', 'name phoneNumber')
       .populate('items.productId', 'name price category')
       .sort({ createdAt: -1 })
       .limit(limit * 1)
@@ -259,7 +269,7 @@ export const getOrderStats = async (req, res) => {
     ]);
 
     const recentOrders = await Order.find()
-      .populate('userId', 'displayName email')
+      .populate('userId', 'name phoneNumber')
       .sort({ createdAt: -1 })
       .limit(5);
 

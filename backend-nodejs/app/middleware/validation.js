@@ -28,8 +28,8 @@ export const validateRequest = (schema) => {
     const { error } = schema.validate(req.body);
     if (error) {
       return res.status(400).json({
-        error: 'Validation failed',
-        details: error.details[0].message
+        success: false,
+        message: error.details[0].message
       });
     }
     next();

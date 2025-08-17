@@ -1,23 +1,35 @@
 import Product from '../models/Product.js';
+import logger from '../utils/logger.js';
 
 // Get product by barcode
 export const getProductByBarcode = async (req, res, next) => {
   try {
     const { barcode } = req.params;
     
+    logger.dbLog('FIND', 'products', { barcode });
     const product = await Product.findOne({ barcode });
     
     if (!product) {
+      logger.warn('Product not found', { barcode });
       return res.status(404).json({ 
+        success: false,
         error: 'Product not found',
-        details: `No product found with barcode: ${barcode}` 
+        details: `No product found with barcode: ${barcode}`,
+        timestamp: new Date().toISOString()
       });
     }
     
+    logger.info('Product found', { barcode, productName: product.name });
     res.json({
-      name: product.name,
-      price: product.price,
-      barcode: product.barcode
+      success: true,
+      data: {
+        name: product.name,
+        price: product.price,
+        barcode: product.barcode,
+        category: product.category,
+        stock: product.stock
+      },
+      timestamp: new Date().toISOString()
     });
   } catch (error) {
     next(error);
@@ -27,18 +39,24 @@ export const getProductByBarcode = async (req, res, next) => {
 // Create new product
 export const createProduct = async (req, res, next) => {
   try {
-    const { barcode, name, price } = req.body;
+    const { barcode, name, price, category, stock } = req.body;
     
-    const product = new Product({ barcode, name, price });
+    logger.dbLog('CREATE', 'products', { barcode, name });
+    const product = new Product({ barcode, name, price, category, stock });
     await product.save();
     
+    logger.info('Product created', { barcode, name });
     res.status(201).json({
+      success: true,
       message: 'Product created successfully',
-      product: {
+      data: {
         barcode: product.barcode,
         name: product.name,
-        price: product.price
-      }
+        price: product.price,
+        category: product.category,
+        stock: product.stock
+      },
+      timestamp: new Date().toISOString()
     });
   } catch (error) {
     next(error);
@@ -48,11 +66,31 @@ export const createProduct = async (req, res, next) => {
 // Get all products
 export const getAllProducts = async (req, res, next) => {
   try {
-    const products = await Product.find({});
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
     
+    logger.dbLog('FIND_ALL', 'products', { page, limit });
+    const products = await Product.find({ isActive: true })
+      .skip(skip)
+      .limit(limit)
+      .sort({ createdAt: -1 });
+    
+    const total = await Product.countDocuments({ isActive: true });
+    
+    logger.info('Products retrieved', { count: products.length, total });
     res.json({
-      count: products.length,
-      products
+      success: true,
+      data: {
+        products,
+        pagination: {
+          page,
+          limit,
+          total,
+          pages: Math.ceil(total / limit)
+        }
+      },
+      timestamp: new Date().toISOString()
     });
   } catch (error) {
     next(error);
@@ -65,6 +103,7 @@ export const updateProduct = async (req, res, next) => {
     const { barcode } = req.params;
     const updates = req.body;
     
+    logger.dbLog('UPDATE', 'products', { barcode, updates });
     const product = await Product.findOneAndUpdate(
       { barcode },
       updates,
@@ -72,15 +111,21 @@ export const updateProduct = async (req, res, next) => {
     );
     
     if (!product) {
+      logger.warn('Product not found for update', { barcode });
       return res.status(404).json({
+        success: false,
         error: 'Product not found',
-        details: `No product found with barcode: ${barcode}`
+        details: `No product found with barcode: ${barcode}`,
+        timestamp: new Date().toISOString()
       });
     }
     
+    logger.info('Product updated', { barcode, name: product.name });
     res.json({
+      success: true,
       message: 'Product updated successfully',
-      product
+      data: product,
+      timestamp: new Date().toISOString()
     });
   } catch (error) {
     next(error);
@@ -92,18 +137,29 @@ export const deleteProduct = async (req, res, next) => {
   try {
     const { barcode } = req.params;
     
-    const product = await Product.findOneAndDelete({ barcode });
+    logger.dbLog('DELETE', 'products', { barcode });
+    const product = await Product.findOneAndUpdate(
+      { barcode },
+      { isActive: false },
+      { new: true }
+    );
     
     if (!product) {
+      logger.warn('Product not found for deletion', { barcode });
       return res.status(404).json({
+        success: false,
         error: 'Product not found',
-        details: `No product found with barcode: ${barcode}`
+        details: `No product found with barcode: ${barcode}`,
+        timestamp: new Date().toISOString()
       });
     }
     
+    logger.info('Product soft deleted', { barcode, name: product.name });
     res.json({
+      success: true,
       message: 'Product deleted successfully',
-      product
+      data: product,
+      timestamp: new Date().toISOString()
     });
   } catch (error) {
     next(error);

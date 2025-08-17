@@ -1,6 +1,16 @@
+import logger from '../utils/logger.js';
+
 // Global error handling middleware
 export const errorHandler = (err, req, res, next) => {
-  console.error(err.stack);
+  // Log the error with context
+  logger.error('Request error', {
+    error: err.message,
+    stack: err.stack,
+    method: req.method,
+    url: req.url,
+    userId: req.user?.id || 'anonymous',
+    ip: req.ip || req.connection.remoteAddress
+  });
 
   // Mongoose validation error
   if (err.name === 'ValidationError') {
@@ -29,16 +39,27 @@ export const errorHandler = (err, req, res, next) => {
   }
 
   // Default error
-  res.status(err.status || 500).json({
+  const statusCode = err.status || 500;
+  res.status(statusCode).json({
+    success: false,
     error: err.message || 'Internal Server Error',
-    details: process.env.NODE_ENV === 'development' ? err.stack : 'Something went wrong'
+    details: process.env.NODE_ENV === 'development' ? err.stack : 'Something went wrong',
+    timestamp: new Date().toISOString()
   });
 };
 
 // 404 handler
 export const notFoundHandler = (req, res) => {
+  logger.warn('Route not found', {
+    method: req.method,
+    url: req.url,
+    ip: req.ip || req.connection.remoteAddress
+  });
+  
   res.status(404).json({
+    success: false,
     error: 'Route not found',
-    details: `Cannot ${req.method} ${req.path}`
+    details: `Cannot ${req.method} ${req.path}`,
+    timestamp: new Date().toISOString()
   });
 };

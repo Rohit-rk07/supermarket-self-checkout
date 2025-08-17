@@ -1,35 +1,43 @@
 import { createContext, useContext, useState, useEffect, useRef } from "react";
-import { db } from "../config/firebase";
-import { doc, setDoc, getDoc } from "firebase/firestore";
-import { useAuth } from "../context/AuthContext"; // Make sure the path is correct
+import { useAuth } from "./AuthContext";
 
 const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
     const { user } = useAuth();
     const [cart, setCart] = useState([]);
-    const hasFetchedCart = useRef(false); // 🧠 Flag to avoid first write
+    const hasFetchedCart = useRef(false); // Flag to avoid first write
 
-    // 🔥 Fetch cart from Firestore when user logs in
-    
-
-    // 🔥 Save cart to Firestore when cart updates (after first fetch)
+    // Load cart from localStorage on mount / when user changes
     useEffect(() => {
-        if (!user || !hasFetchedCart.current) return;
-        
-        const saveCart = async () => {
-            try {
-                const cartRef = doc(db, "carts", user.email);
-                await setDoc(cartRef, { items: cart }, { merge: true });
-            } catch (error) {
-                console.error("Error saving cart:", error);
+        const key = user ? `cart_${user.phoneNumber || user.email || user.id}` : 'cart_guest';
+        try {
+            const saved = localStorage.getItem(key);
+            if (saved) {
+                setCart(JSON.parse(saved));
+            } else {
+                setCart([]);
             }
-        };
-        
-        saveCart();
+        } catch (e) {
+            console.error("Failed to load cart from storage", e);
+            setCart([]);
+        }
+        hasFetchedCart.current = true;
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [user?.phoneNumber, user?.email, user?.id]);
+
+    // Persist cart to localStorage whenever it changes (after first load)
+    useEffect(() => {
+        if (!hasFetchedCart.current) return;
+        const key = user ? `cart_${user.phoneNumber || user.email || user.id}` : 'cart_guest';
+        try {
+            localStorage.setItem(key, JSON.stringify(cart));
+        } catch (e) {
+            console.error("Failed to save cart to storage", e);
+        }
     }, [cart, user]);
 
-    // ✅ Add item to cart
+    // Add item to cart
     const addToCart = (product) => {
         // Check if product already exists in cart
         const existingItem = cart.find(item => item.barcode === product.barcode);

@@ -104,7 +104,7 @@ const CheckoutPage = () => {
             setPaymentError(null);
             
             // 1. Create order on the backend
-            const response = await fetch('/api/payments/create-order', {
+            const response = await fetch('/api/v1/payments/create-order', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -133,7 +133,7 @@ const CheckoutPage = () => {
                 handler: async function (response) {
                     try {
                         // 3. Verify payment on backend
-                        const verifyResponse = await fetch('/api/payments/verify-payment', {
+                        const verifyResponse = await fetch('/api/v1/payments/verify-payment', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -186,97 +186,144 @@ const CheckoutPage = () => {
 
     if (success) {
         return (
-            <Container maxWidth="sm" sx={{ mt: 4, textAlign: "center" }}>
-                <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
-                    <CheckCircle color="success" sx={{ fontSize: 64, mb: 2 }} />
-                    <Typography variant="h4" gutterBottom>Payment Successful!</Typography>
-                    <Typography variant="body1" paragraph>
-                        Your payment has been processed successfully.
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary" gutterBottom>
-                        Please take your receipt from the printer.
-                    </Typography>
-                    <CircularProgress size={24} sx={{ mt: 2 }} />
-                    <Typography variant="caption" display="block" sx={{ mt: 1 }}>
-                        Redirecting to your account...
-                    </Typography>
-                </Paper>
-            </Container>
+            <Box sx={{ 
+                minHeight: '100vh', 
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                py: 4
+            }}>
+                <Container maxWidth="sm" sx={{ textAlign: "center" }}>
+                    <Paper 
+                        elevation={24} 
+                        sx={{ 
+                            p: 6, 
+                            borderRadius: 4,
+                            background: 'rgba(255, 255, 255, 0.95)',
+                            backdropFilter: 'blur(20px)',
+                            border: '1px solid rgba(255, 255, 255, 0.2)',
+                            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+                        }}
+                    >
+                        <CheckCircle color="success" sx={{ fontSize: 80, mb: 3 }} />
+                        <Typography variant="h3" fontWeight="bold" gutterBottom>Payment Successful!</Typography>
+                        <Typography variant="h6" paragraph color="text.secondary">
+                            Your payment has been processed successfully.
+                        </Typography>
+                        <Typography variant="body1" color="text.secondary" gutterBottom sx={{ mb: 3 }}>
+                            Please take your receipt from the printer.
+                        </Typography>
+                        <CircularProgress size={32} sx={{ mt: 2 }} />
+                        <Typography variant="body1" display="block" sx={{ mt: 2, fontWeight: 500 }}>
+                            Redirecting to your account...
+                        </Typography>
+                    </Paper>
+                </Container>
+            </Box>
         );
     }
 
     return (
-        <Container maxWidth="md" sx={{ mt: 4, mb: 8 }}>
+    <Box sx={{ 
+        minHeight: '100vh', 
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        py: 4
+    }}>
+        <Container maxWidth="lg">
+            <Typography 
+                variant="h3" 
+                fontWeight="bold" 
+                gutterBottom 
+                sx={{ 
+                    textAlign: 'center', 
+                    color: 'white',
+                    mb: 4,
+                    textShadow: '0 2px 4px rgba(0,0,0,0.3)'
+                }}
+            >
+                💳 Checkout
+            </Typography>
+            
             <Grid container spacing={4}>
                 <Grid item xs={12} md={7}>
-                    <Paper elevation={2} sx={{ p: 3, borderRadius: 2 }}>
-                        <Typography variant="h5" fontWeight="bold" gutterBottom>
-                            Review Your Items
-                        </Typography>
-                        <Divider sx={{ mb: 2 }} />
-                        
-                        {cart.length === 0 ? (
-                            <Typography variant="body1" color="text.secondary" sx={{ py: 3, textAlign: "center" }}>
-                                Your cart is empty. Please scan items before checkout.
-                            </Typography>
-                        ) : (
-                            <List disablePadding>
-                                {cart.map((item, idx) => (
-                                    <Box key={idx}>
-                                        <ListItem sx={{ py: 1.5 }}>
-                                            <ListItemText
-                                                primary={item.name}
-                                                secondary={item.category && `Category: ${item.category}`}
-                                            />
-                                            <ListItemSecondaryAction>
-                                                <Box sx={{ textAlign: "right" }}>
-                                                    <Typography variant="body2" color="text.secondary">
-                                                        {item.quantity || 1} × ${item.price.toFixed(2)}
-                                                    </Typography>
-                                                    <Typography variant="body1" fontWeight="medium">
-                                                        ${((item.quantity || 1) * item.price).toFixed(2)}
-                                                    </Typography>
-                                                </Box>
-                                            </ListItemSecondaryAction>
-                                        </ListItem>
-                                        {idx < cart.length - 1 && <Divider />}
-                                    </Box>
-                                ))}
-                            </List>
-                        )}
-                        
-                        <Divider sx={{ mt: 2, mb: 2 }} />
-                        
-                        <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
-                            <Typography variant="body1">Subtotal</Typography>
-                            <Typography variant="body1">${subtotal.toFixed(2)}</Typography>
-                        </Box>
-                        <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
-                            <Typography variant="body1">Tax (7%)</Typography>
-                            <Typography variant="body1">${tax.toFixed(2)}</Typography>
-                        </Box>
-                        <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-                            <Typography variant="h6" fontWeight="bold">Total</Typography>
-                            <Typography variant="h6" fontWeight="bold" color="primary.main">
-                                ${total.toFixed(2)}
-                            </Typography>
-                        </Box>
-                    </Paper>
-                    
-                    <Button
-                        variant="outlined"
-                        startIcon={<ShoppingCartCheckout />}
-                        sx={{ mt: 2 }}
-                        onClick={() => navigate("/cart")}
+                    <Paper 
+                        elevation={24} 
+                        sx={{ 
+                            p: 4, 
+                            borderRadius: 4,
+                            background: 'rgba(255, 255, 255, 0.95)',
+                            backdropFilter: 'blur(20px)',
+                            border: '1px solid rgba(255, 255, 255, 0.2)',
+                            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+                        }}
                     >
-                        Return to Cart
-                    </Button>
+                    <Typography variant="h5" fontWeight="bold" gutterBottom>
+                        Review Your Items
+                    </Typography>
+                    <Divider sx={{ mb: 2 }} />
+                    
+                    {cart.length === 0 ? (
+                        <Typography variant="body1" color="text.secondary" sx={{ py: 3, textAlign: "center" }}>
+                            Your cart is empty. Please scan items before checkout.
+                        </Typography>
+                    ) : (
+                        <List disablePadding>
+                            {cart.map((item, idx) => (
+                                <Box key={idx}>
+                                    <ListItem sx={{ py: 1.5 }}>
+                                        <ListItemText
+                                            primary={item.name}
+                                            secondary={item.category && `Category: ${item.category}`}
+                                        />
+                                        <ListItemSecondaryAction>
+                                            <Box sx={{ textAlign: "right" }}>
+                                                <Typography variant="body2" color="text.secondary">
+                                                    {item.quantity || 1} × ${item.price.toFixed(2)}
+                                                </Typography>
+                                                <Typography variant="body1" fontWeight="medium">
+                                                    ${((item.quantity || 1) * item.price).toFixed(2)}
+                                                </Typography>
+                                            </Box>
+                                        </ListItemSecondaryAction>
+                                    </ListItem>
+                                    {idx < cart.length - 1 && <Divider />}
+                                </Box>
+                            ))}
+                        </List>
+                    )}
+                    
+                    <Divider sx={{ mt: 2, mb: 2 }} />
+                    
+                    <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
+                        <Typography variant="body1">Subtotal</Typography>
+                        <Typography variant="body1">${subtotal.toFixed(2)}</Typography>
+                    </Box>
+                    <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
+                        <Typography variant="body1">Tax (7%)</Typography>
+                        <Typography variant="body1">${tax.toFixed(2)}</Typography>
+                    </Box>
+                    <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                        <Typography variant="body1">Total</Typography>
+                        <Typography variant="body1" fontWeight="bold">${total.toFixed(2)}</Typography>
+                    </Box>
+                    </Paper>
                 </Grid>
                 
                 <Grid item xs={12} md={5}>
-                    <Paper elevation={2} sx={{ p: 3, borderRadius: 2 }}>
+                    <Paper 
+                        elevation={24} 
+                        sx={{ 
+                            p: 4, 
+                            borderRadius: 4,
+                            background: 'rgba(255, 255, 255, 0.95)',
+                            backdropFilter: 'blur(20px)',
+                            border: '1px solid rgba(255, 255, 255, 0.2)',
+                            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+                        }}
+                    >
                         <Typography variant="h5" fontWeight="bold" gutterBottom>
-                            Select Payment Method
+                            Payment Options
                         </Typography>
                         <Divider sx={{ mb: 3 }} />
                         
@@ -306,8 +353,12 @@ const CheckoutPage = () => {
                                         mb: 2, 
                                         py: 2, 
                                         justifyContent: "flex-start",
-                                        border: "1px solid #e0e0e0",
-                                        "&:hover": { border: "1px solid #1976d2" }
+                                        borderRadius: 3,
+                                        border: "2px solid #667eea",
+                                        "&:hover": { 
+                                            border: "2px solid #5a6fd8",
+                                            background: 'rgba(102, 126, 234, 0.05)'
+                                        }
                                     }}
                                     onClick={() => handlePayment("razorpay")}
                                     disabled={cart.length === 0}
@@ -331,8 +382,12 @@ const CheckoutPage = () => {
                                         mb: 2, 
                                         py: 2, 
                                         justifyContent: "flex-start",
-                                        border: "1px solid #e0e0e0",
-                                        "&:hover": { border: "1px solid #1976d2" }
+                                        borderRadius: 3,
+                                        border: "2px solid #f093fb",
+                                        "&:hover": { 
+                                            border: "2px solid #e081f5",
+                                            background: 'rgba(240, 147, 251, 0.05)'
+                                        }
                                     }}
                                     onClick={() => handlePayment("card")}
                                     disabled={cart.length === 0}
@@ -356,8 +411,12 @@ const CheckoutPage = () => {
                                         mb: 2, 
                                         py: 2, 
                                         justifyContent: "flex-start",
-                                        border: "1px solid #e0e0e0",
-                                        "&:hover": { border: "1px solid #1976d2" }
+                                        borderRadius: 3,
+                                        border: "2px solid #4facfe",
+                                        "&:hover": { 
+                                            border: "2px solid #3d9bfe",
+                                            background: 'rgba(79, 172, 254, 0.05)'
+                                        }
                                     }}
                                     onClick={() => handlePayment("cash")}
                                     disabled={cart.length === 0}
@@ -382,40 +441,52 @@ const CheckoutPage = () => {
                         )}
                     </Paper>
                     
-                    {!processing && (
-                        <Paper elevation={2} sx={{ p: 3, borderRadius: 2, mt: 3 }}>
-                            <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-                                <Receipt color="primary" sx={{ mr: 1.5 }} />
-                                <Typography variant="h6" fontWeight="medium">
-                                    Receipt Options
-                                </Typography>
-                            </Box>
-                            <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
-                                <Chip
-                                    label="Print Receipt"
-                                    variant="outlined"
-                                    clickable
-                                    sx={{ px: 1 }}
-                                />
-                                <Chip
-                                    label="Email Receipt"
-                                    variant="outlined"
-                                    clickable
-                                    sx={{ px: 1 }}
-                                />
-                                <Chip
-                                    label="No Receipt"
-                                    variant="outlined"
-                                    clickable
-                                    sx={{ px: 1 }}
-                                />
-                            </Box>
-                        </Paper>
-                    )}
+                        {!processing && (
+                            <Paper 
+                                elevation={24} 
+                                sx={{ 
+                                    p: 3, 
+                                    borderRadius: 4, 
+                                    mt: 3,
+                                    background: 'rgba(255, 255, 255, 0.95)',
+                                    backdropFilter: 'blur(20px)',
+                                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+                                }}
+                            >
+                                <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                                    <Receipt color="primary" sx={{ mr: 1.5 }} />
+                                    <Typography variant="h6" fontWeight="medium">
+                                        Receipt Options
+                                    </Typography>
+                                </Box>
+                                <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+                                    <Chip
+                                        label="Print Receipt"
+                                        variant="outlined"
+                                        clickable
+                                        sx={{ px: 1, borderRadius: 2 }}
+                                    />
+                                    <Chip
+                                        label="Email Receipt"
+                                        variant="outlined"
+                                        clickable
+                                        sx={{ px: 1, borderRadius: 2 }}
+                                    />
+                                    <Chip
+                                        label="No Receipt"
+                                        variant="outlined"
+                                        clickable
+                                        sx={{ px: 1, borderRadius: 2 }}
+                                    />
+                                </Box>
+                            </Paper>
+                        )}
                 </Grid>
             </Grid>
         </Container>
-    );
+    </Box>
+);
 };
 
 export default CheckoutPage;
