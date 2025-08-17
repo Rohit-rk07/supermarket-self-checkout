@@ -22,22 +22,30 @@ export const OrderProvider = ({ children }) => {
                 setLoading(true);
                 setError(null);
                 
+                const headers = {
+                    'Content-Type': 'application/json'
+                };
+
+                // Handle demo user authentication
+                if (user.token === 'demo-token') {
+                    headers['demo-token'] = 'demo-token-123';
+                } else {
+                    headers['Authorization'] = `Bearer ${user.token}`;
+                }
+                
                 const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/api/v1/orders/my-orders`, {
-                    headers: {
-                        'Authorization': `Bearer ${user.token}`,
-                        'Content-Type': 'application/json'
-                    }
+                    headers
                 });
 
                 if (!response.ok) {
-                    throw new Error('Failed to fetch orders');
+                    throw new Error('Failed to fetch purchases');
                 }
 
                 const data = await response.json();
                 setOrders(data.data.orders || []);
             } catch (err) {
-                console.error("Error fetching orders:", err);
-                setError("Failed to load order history. Please try again later.");
+                console.error("Error fetching purchases:", err);
+                setError("Failed to load purchase history. Please try again later.");
             } finally {
                 setLoading(false);
             }
@@ -51,12 +59,20 @@ export const OrderProvider = ({ children }) => {
         if (!user || !user.token) return null;
 
         try {
+            const headers = {
+                'Content-Type': 'application/json'
+            };
+
+            // Handle demo user authentication
+            if (user.token === 'demo-token') {
+                headers['demo-token'] = 'demo-token-123';
+            } else {
+                headers['Authorization'] = `Bearer ${user.token}`;
+            }
+
             const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/api/v1/orders`, {
                 method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${user.token}`,
-                    'Content-Type': 'application/json'
-                },
+                headers,
                 body: JSON.stringify({
                     items: orderData.items.map(item => ({
                         barcode: item.barcode,

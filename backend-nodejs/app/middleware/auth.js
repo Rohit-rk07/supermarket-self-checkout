@@ -4,6 +4,20 @@ import User from '../models/User.js';
 // JWT Authentication Middleware
 export const authenticateJWT = async (req, res, next) => {
   try {
+    // Check for demo-token authentication first
+    if (req.headers['demo-token'] === 'demo-token-123') {
+      // Create a fake user object for demo authentication
+      req.user = {
+        _id: 'demo-user',
+        name: 'Demo User',
+        phoneNumber: '+91-9999999999',
+        isActive: true,
+        role: 'user',
+        isDemo: true
+      };
+      return next();
+    }
+
     const authHeader = req.headers.authorization;
     
     if (!authHeader) {

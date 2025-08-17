@@ -124,7 +124,7 @@ const CartSidebar = ({ isOpen, closeCart }) => {
                                             {item.name}
                                         </Typography>
                                         <Typography variant="body2" color="text.secondary" gutterBottom>
-                                            ${item.price.toFixed(2)} each
+                                            ₹{item.price.toFixed(2)} each
                                         </Typography>
                                         
                                         {/* Quantity Controls */}
@@ -151,7 +151,7 @@ const CartSidebar = ({ isOpen, closeCart }) => {
                                             <Box sx={{ flexGrow: 1 }} />
                                             
                                             <Typography variant="subtitle2" fontWeight="bold">
-                                                ${(item.price * (item.quantity || 1)).toFixed(2)}
+                                                ₹{(item.price * (item.quantity || 1)).toFixed(2)}
                                             </Typography>
                                         </Stack>
                                     </Box>
@@ -196,7 +196,7 @@ const CartSidebar = ({ isOpen, closeCart }) => {
                             </Grid>
                             <Grid item xs={6}>
                                 <Typography variant="body2" textAlign="right" fontWeight="medium">
-                                    ${cartTotal.toFixed(2)}
+                                    ₹{cartTotal.toFixed(2)}
                                 </Typography>
                             </Grid>
                             
@@ -205,7 +205,7 @@ const CartSidebar = ({ isOpen, closeCart }) => {
                             </Grid>
                             <Grid item xs={6}>
                                 <Typography variant="body2" textAlign="right" fontWeight="medium">
-                                    ${tax.toFixed(2)}
+                                    ₹{tax.toFixed(2)}
                                 </Typography>
                             </Grid>
                             
@@ -216,7 +216,7 @@ const CartSidebar = ({ isOpen, closeCart }) => {
                             </Grid>
                             <Grid item xs={6}>
                                 <Typography variant="subtitle1" fontWeight="bold" textAlign="right" color="primary.main">
-                                    ${final.toFixed(2)}
+                                    ₹{final.toFixed(2)}
                                 </Typography>
                             </Grid>
                         </Grid>
@@ -236,7 +236,7 @@ const CartSidebar = ({ isOpen, closeCart }) => {
                             }}
                             onClick={handleCheckout}
                         >
-                            Checkout (${final.toFixed(2)})
+                            Checkout (₹{final.toFixed(2)})
                         </Button>
                         
                         <Button 

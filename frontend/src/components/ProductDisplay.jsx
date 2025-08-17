@@ -6,7 +6,7 @@ const ProductDisplay = ({ product, error }) => {
             ) : product ? (
                 <div>
                     <h3>🛒 {product.name}</h3>
-                    <p>💰 Price: <strong>${product.price.toFixed(2)}</strong></p>
+                    <p>💰 Price: <strong>₹{product.price.toFixed(2)}</strong></p>
                 </div>
             ) : (
                 <p style={{ color: "#777" }}>Scan a barcode to see product details.</p>

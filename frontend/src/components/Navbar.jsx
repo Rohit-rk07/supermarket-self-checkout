@@ -28,12 +28,12 @@ const Navbar = () => {
                     {user ? (
     <>
         <IconButton onClick={handleMenuOpen}>
-            <Avatar>{user.displayName ? user.displayName[0] : user.email[0]}</Avatar>
+            <Avatar>{user.name ? user.name[0] : (user.email ? user.email[0] : 'U')}</Avatar>
               
         </IconButton>
         <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
-            <MenuItem onClick={() => navigate("/account")}> Account</MenuItem>
-            <MenuItem onClick={logout}> Logout</MenuItem>
+            <MenuItem onClick={() => navigate("/account")}>Purchase History</MenuItem>
+            <MenuItem onClick={logout}>Logout</MenuItem>
         </Menu>
         
     </>

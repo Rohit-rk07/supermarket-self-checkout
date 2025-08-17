@@ -104,7 +104,7 @@ const CheckoutPage = () => {
             setPaymentError(null);
             
             // 1. Create order on the backend
-            const response = await fetch('/api/v1/payments/create-order', {
+            const response = await fetch('/api/v1/orders/create-order', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -133,7 +133,7 @@ const CheckoutPage = () => {
                 handler: async function (response) {
                     try {
                         // 3. Verify payment on backend
-                        const verifyResponse = await fetch('/api/v1/payments/verify-payment', {
+                        const verifyResponse = await fetch('/api/v1/orders/verify-payment', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -207,9 +207,9 @@ const CheckoutPage = () => {
                         }}
                     >
                         <CheckCircle color="success" sx={{ fontSize: 80, mb: 3 }} />
-                        <Typography variant="h3" fontWeight="bold" gutterBottom>Payment Successful!</Typography>
+                        <Typography variant="h3" fontWeight="bold" gutterBottom>Purchase Successful!</Typography>
                         <Typography variant="h6" paragraph color="text.secondary">
-                            Your payment has been processed successfully.
+                            Your purchase has been processed successfully.
                         </Typography>
                         <Typography variant="body1" color="text.secondary" gutterBottom sx={{ mb: 3 }}>
                             Please take your receipt from the printer.
@@ -279,10 +279,10 @@ const CheckoutPage = () => {
                                         <ListItemSecondaryAction>
                                             <Box sx={{ textAlign: "right" }}>
                                                 <Typography variant="body2" color="text.secondary">
-                                                    {item.quantity || 1} × ${item.price.toFixed(2)}
+                                                    {item.quantity || 1} × ₹{item.price.toFixed(2)}
                                                 </Typography>
                                                 <Typography variant="body1" fontWeight="medium">
-                                                    ${((item.quantity || 1) * item.price).toFixed(2)}
+                                                    ₹{((item.quantity || 1) * item.price).toFixed(2)}
                                                 </Typography>
                                             </Box>
                                         </ListItemSecondaryAction>
@@ -297,15 +297,15 @@ const CheckoutPage = () => {
                     
                     <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
                         <Typography variant="body1">Subtotal</Typography>
-                        <Typography variant="body1">${subtotal.toFixed(2)}</Typography>
+                        <Typography variant="body1">₹{subtotal.toFixed(2)}</Typography>
                     </Box>
                     <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
                         <Typography variant="body1">Tax (7%)</Typography>
-                        <Typography variant="body1">${tax.toFixed(2)}</Typography>
+                        <Typography variant="body1">₹{tax.toFixed(2)}</Typography>
                     </Box>
                     <Box sx={{ display: "flex", justifyContent: "space-between" }}>
                         <Typography variant="body1">Total</Typography>
-                        <Typography variant="body1" fontWeight="bold">${total.toFixed(2)}</Typography>
+                        <Typography variant="body1" fontWeight="bold">₹{total.toFixed(2)}</Typography>
                     </Box>
                     </Paper>
                 </Grid>

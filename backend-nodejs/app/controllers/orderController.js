@@ -6,9 +6,24 @@ import User from '../models/User.js';
 export const createOrder = async (req, res) => {
   try {
     const { items, notes, deliveryAddress } = req.body;
-    const userId = req.user._id;
-    const userPhone = req.user.phoneNumber;
-    const userName = req.user.name;
+    
+    let userId, userPhone, userName;
+
+    // Handle demo-token authentication
+    if (req.headers['demo-token'] === 'demo-token-123') {
+      userId = 'demo-user';
+      userPhone = '+91-9999999999'; // Demo phone number
+      userName = 'Demo User';
+    } else if (req.user) {
+      userId = req.user._id;
+      userPhone = req.user.phoneNumber;
+      userName = req.user.name;
+    } else {
+      return res.status(401).json({
+        success: false,
+        message: 'Authentication required'
+      });
+    }
 
     // Validate items and calculate total
     const orderItems = [];
@@ -79,13 +94,17 @@ export const createOrder = async (req, res) => {
 // Get user orders
 export const getUserOrders = async (req, res) => {
   try {
-    const userId = req.user._id;
+    const userId = req.user._id; // Should be set by middleware for both regular and demo users
+
     const { page = 1, limit = 10, status } = req.query;
 
+    // Build query
     const query = { userId };
     if (status) {
       query.status = status;
     }
+
+    console.log('🔍 Fetching orders for userId:', userId, 'with query:', query);
 
     const orders = await Order.find(query)
       .populate('items.productId', 'name price category')
@@ -93,12 +112,38 @@ export const getUserOrders = async (req, res) => {
       .limit(limit * 1)
       .skip((page - 1) * limit);
 
+    console.log('📦 Found orders:', orders.length);
+
+    // Update order statuses based on age for all users
+    const updatedOrders = await Promise.all(orders.map(async (order) => {
+      const orderAge = Date.now() - order.createdAt.getTime();
+      const hoursOld = orderAge / (1000 * 60 * 60);
+      
+      let newStatus = order.status;
+      
+      // Auto-update status based on time
+      if (order.paymentStatus === 'paid' && order.status === 'pending') {
+        if (hoursOld > 48) {
+          newStatus = 'completed';
+        } else if (hoursOld > 2) {
+          newStatus = 'processing';
+        }
+        
+        if (newStatus !== order.status) {
+          await Order.findByIdAndUpdate(order._id, { status: newStatus });
+          order.status = newStatus;
+        }
+      }
+      
+      return order;
+    }));
+
     const total = await Order.countDocuments(query);
 
     res.json({
       success: true,
       data: {
-        orders,
+        orders: updatedOrders,
         pagination: {
           page: parseInt(page),
           limit: parseInt(limit),
@@ -108,10 +153,11 @@ export const getUserOrders = async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Get user orders error:', error);
+    console.error('❌ Error fetching purchases:', error);
     res.status(500).json({
       success: false,
-      message: 'Failed to get orders'
+      message: 'Error fetching purchases',
+      error: error.message
     });
   }
 };
@@ -120,7 +166,9 @@ export const getUserOrders = async (req, res) => {
 export const getOrderById = async (req, res) => {
   try {
     const { orderId } = req.params;
-    const userId = req.user._id;
+    const userId = req.user._id; // Should be set by middleware for both regular and demo users
+
+    console.log('🔍 Fetching order:', orderId, 'for userId:', userId);
 
     const order = await Order.findOne({ _id: orderId, userId })
       .populate('items.productId', 'name price category description');
@@ -137,7 +185,7 @@ export const getOrderById = async (req, res) => {
       data: order
     });
   } catch (error) {
-    console.error('Get order error:', error);
+    console.error('❌ Get order error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to get order'
@@ -182,9 +230,15 @@ export const updateOrderStatus = async (req, res) => {
 export const cancelOrder = async (req, res) => {
   try {
     const { orderId } = req.params;
-    const userId = req.user._id;
+    let userId = req.user?._id;
+
+    // Handle demo-token authentication
+    if (!userId && req.headers['demo-token'] === 'demo-token-123') {
+      userId = 'demo-user';
+    }
 
     const order = await Order.findOne({ _id: orderId, userId });
+
     if (!order) {
       return res.status(404).json({
         success: false,
@@ -195,11 +249,12 @@ export const cancelOrder = async (req, res) => {
     if (order.status === 'completed' || order.status === 'cancelled') {
       return res.status(400).json({
         success: false,
-        message: 'Cannot cancel this order'
+        message: `Cannot cancel order that is already ${order.status}`
       });
     }
 
     order.status = 'cancelled';
+    order.updatedAt = new Date();
     await order.save();
 
     res.json({
@@ -208,10 +263,10 @@ export const cancelOrder = async (req, res) => {
       data: order
     });
   } catch (error) {
-    console.error('Cancel order error:', error);
     res.status(500).json({
       success: false,
-      message: 'Failed to cancel order'
+      message: 'Error cancelling order',
+      error: error.message
     });
   }
 };
