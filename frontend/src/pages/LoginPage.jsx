@@ -26,22 +26,22 @@ import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
 const countryCodes = [
-  { code: '+1', country: 'US/Canada', flag: '🇺🇸', digits: 10, pattern: '[2-9]' },
-  { code: '+91', country: 'India', flag: '🇮🇳', digits: 10, pattern: '[6-9]' },
-  { code: '+86', country: 'China', flag: '🇨🇳', digits: 11, pattern: '1' },
-  { code: '+44', country: 'UK', flag: '🇬🇧', digits: 10, pattern: '7' },
-  { code: '+81', country: 'Japan', flag: '🇯🇵', digits: 9, pattern: '[7-9]' },
-  { code: '+49', country: 'Germany', flag: '🇩🇪', digits: '10-11', pattern: '1' }
+  { code: '+1', country: 'US/Canada', flag: '', digits: 10, pattern: '[2-9]' },
+  { code: '+91', country: 'India', flag: '', digits: 10, pattern: '[6-9]' },
+  { code: '+86', country: 'China', flag: '', digits: 11, pattern: '1' },
+  { code: '+44', country: 'UK', flag: '', digits: 10, pattern: '7' },
+  { code: '+81', country: 'Japan', flag: '', digits: 9, pattern: '[7-9]' },
+  { code: '+49', country: 'Germany', flag: '', digits: '10-11', pattern: '1' }
 ];
 
 const LoginPage = () => {
-  const { sendPhoneOTP, verifyPhoneOTP, completeRegistration, login, error } = useAuth();
+  const { sendPhoneOTP, verifyPhoneOTP, completeRegistration, loginAsDemo, error } = useAuth();
   const [countryCode, setCountryCode] = useState('+91');
   const [phoneNumber, setPhoneNumber] = useState("");
   const [otp, setOtp] = useState("");
-  const [step, setStep] = useState(1); 
+  const [step, setStep] = useState(1);
   const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(""); 
   const [loading, setLoading] = useState(false);
   const [countdown, setCountdown] = useState(0);
   const navigate = useNavigate();
@@ -106,9 +106,9 @@ const LoginPage = () => {
     try {
       const response = await verifyPhoneOTP(fullPhoneNumber, otp);
       if (response.data && response.data.isNewUser) {
-        setStep(3); // Show registration form
+        setStep(3); // New users need to complete registration
       } else {
-        navigate('/dashboard'); // Existing user goes directly to dashboard
+        navigate('/dashboard'); // Existing users go directly to dashboard
       }
     } catch (err) {
       // Error handled by context
@@ -217,7 +217,7 @@ const LoginPage = () => {
               )}
 
               <Typography variant="h4" fontWeight="bold" gutterBottom sx={{ textAlign: 'center' }}>
-                {step === 1 ? "Welcome" : step === 2 ? "Verify OTP" : "Complete Profile"}
+                {step === 1 ? "Welcome" : step === 2 ? "Verify OTP" : step === 3 ? "Complete Registration" : ""}
               </Typography>
 
               {error && (
@@ -299,33 +299,9 @@ const LoginPage = () => {
                       variant="outlined"
                       fullWidth
                       size="large"
-                      onClick={async () => {
-                        try {
-                          // Set demo user directly in auth context
-                          await login({
-                            token: 'demo-token',
-                            user: {
-                              _id: 'demo-user',
-                              name: 'Demo User',
-                              phoneNumber: '+919876543210',
-                              isPhoneVerified: true,
-                              isNewUser: false
-                            }
-                          });
-                          navigate('/dashboard', { replace: true });
-                        } catch (error) {
-                          console.error('Demo login error:', error);
-                          // Fallback: directly set user state and navigate
-                          localStorage.setItem('token', 'demo-token');
-                          localStorage.setItem('user', JSON.stringify({
-                            _id: 'demo-user',
-                            name: 'Demo User',
-                            phoneNumber: '+919876543210',
-                            isPhoneVerified: true,
-                            isNewUser: false
-                          }));
-                          navigate('/dashboard', { replace: true });
-                        }
+                      onClick={() => {
+                        loginAsDemo();
+                        navigate('/dashboard');
                       }}
                       sx={{ 
                         borderRadius: 2,
@@ -337,7 +313,7 @@ const LoginPage = () => {
                         }
                       }}
                     >
-                      🎯 Continue as Demo User
+                      Continue as Demo User
                     </Button>
                   </Box>
                 </Box>
@@ -400,12 +376,14 @@ const LoginPage = () => {
                   </Box>
                 </Box>
               ) : step === 3 ? (
-                // Step 3: Complete Registration Form
                 <Box component="form" onSubmit={handleCompleteRegistration}>
-                  <Typography variant="body2" sx={{ mb: 3, textAlign: 'center', color: 'text.secondary' }}>
-                    Please provide your details to complete registration
+                  <Typography variant="body1" sx={{ mb: 3, textAlign: 'center', color: 'text.secondary' }}>
+                    Complete your profile to get started
                   </Typography>
-
+                  <Typography variant="body2" sx={{ mb: 3, textAlign: 'center', fontWeight: 'bold' }}>
+                    Phone: {countryCode + phoneNumber}
+                  </Typography>
+                  
                   <TextField
                     fullWidth
                     label="Full Name"
@@ -413,27 +391,39 @@ const LoginPage = () => {
                     margin="normal"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
+                    placeholder="John Doe"
                     required
-                    sx={{ mb: 2 }}
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        borderRadius: 2,
+                      }
+                    }}
                   />
-
+                  
                   <TextField
                     fullWidth
                     label="Email (Optional)"
-                    type="email"
                     variant="outlined"
                     margin="normal"
+                    type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    sx={{ mb: 3 }}
+                    placeholder="john@example.com"
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        borderRadius: 2,
+                      }
+                    }}
                   />
 
                   <Button
                     type="submit"
-                    fullWidth
                     variant="contained"
-                    sx={{
-                      mt: 2,
+                    color="primary"
+                    fullWidth
+                    size="large"
+                    sx={{ 
+                      mt: 3, 
                       py: 1.5,
                       borderRadius: 2,
                       background: 'linear-gradient(45deg, #667eea 30%, #764ba2 90%)',

@@ -82,6 +82,26 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    // Demo user login
+    const loginAsDemo = () => {
+        const demoUser = {
+            _id: 'demo-user-permanent-id',
+            name: 'Demo User',
+            phoneNumber: '+919876543210',
+            email: 'demo@example.com',
+            isPhoneVerified: true,
+            isDemo: true
+        };
+        
+        setUser({
+            ...demoUser,
+            token: 'demo-token'
+        });
+        
+        localStorage.setItem('token', 'demo-token');
+        localStorage.setItem('user', JSON.stringify(demoUser));
+    };
+
     // Send OTP to phone number
     const sendPhoneOTP = async (phoneNumber) => {
         try {
@@ -133,8 +153,7 @@ export const AuthProvider = ({ children }) => {
                 phoneNumber: data.data.user.phoneNumber,
                 email: data.data.user.email,
                 token: data.data.token,
-                role: data.data.user.role,
-                isNewUser: data.data.needsRegistration
+                role: data.data.user.role
             });
             
             return data;
@@ -142,6 +161,18 @@ export const AuthProvider = ({ children }) => {
             console.error("Verify OTP error:", error);
             setError(error.message || "Failed to verify OTP");
             throw error;
+        }
+    };
+
+    // Logout
+    const logout = async () => {
+        try {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('token');
+            setUser(null);
+        } catch (error) {
+            console.error("Logout error:", error.message);
+            setError("⚠️ Failed to log out. Please try again.");
         }
     };
 
@@ -163,6 +194,7 @@ export const AuthProvider = ({ children }) => {
                 throw new Error(data.message);
             }
             
+            // Update user state with completed registration
             setUser({
                 ...user,
                 name: data.data.name,
@@ -175,18 +207,6 @@ export const AuthProvider = ({ children }) => {
             console.error("Complete registration error:", error);
             setError(error.message || "Failed to complete registration");
             throw error;
-        }
-    };
-
-    // Logout
-    const logout = async () => {
-        try {
-            localStorage.removeItem('authToken');
-            localStorage.removeItem('token');
-            setUser(null);
-        } catch (error) {
-            console.error("Logout error:", error.message);
-            setError("⚠️ Failed to log out. Please try again.");
         }
     };
 
@@ -231,6 +251,7 @@ export const AuthProvider = ({ children }) => {
         completeRegistration,
         updateProfile,
         login,
+        loginAsDemo,
         logout
     };
 
