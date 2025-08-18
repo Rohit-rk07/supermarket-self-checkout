@@ -145,78 +145,85 @@ const LoginPage = () => {
     <Box 
       sx={{ 
         minHeight: '100vh',
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        backgroundColor: '#f8fafc',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        p: { xs: 1, sm: 2 }
+        p: { xs: 2, sm: 3 }
       }}
     >
       <Container maxWidth="lg">
-        <Grid container spacing={0} sx={{ minHeight: '80vh' }}>
-          {/* Left Side - Branding */}
-          <Grid item xs={12} md={6} sx={{ 
-            display: 'flex', 
-            flexDirection: 'column', 
-            justifyContent: 'center', 
-            alignItems: 'center',
-            p: { xs: 2, md: 4 },
-            color: 'white'
-          }}>
-            <Box sx={{ textAlign: 'center', mb: 4 }}>
-              <ShoppingCartIcon sx={{ fontSize: 80, mb: 2, opacity: 0.9 }} />
-              <Typography variant="h2" fontWeight="bold" gutterBottom>
-                Smart Checkout
-              </Typography>
-              <Typography variant="h6" sx={{ opacity: 0.9, maxWidth: 400 }}>
-                Scan, Shop, and Pay with ease. The future of retail shopping is here.
-              </Typography>
-            </Box>
-            
-            {/* Features */}
-            <Box sx={{ maxWidth: 400, mt: 4 }}>
-              {[
-                { icon: <SecurityIcon />, text: 'Secure Phone Authentication' },
-                { icon: <PhoneIcon />, text: 'Multi-Country Support' },
-                { icon: <ShoppingCartIcon />, text: 'Smart Cart Management' }
-              ].map((feature, index) => (
-                <Box key={index} sx={{ display: 'flex', alignItems: 'center', mb: 2, opacity: 0.9 }}>
-                  {feature.icon}
-                  <Typography variant="body1" sx={{ ml: 2 }}>
-                    {feature.text}
-                  </Typography>
-                </Box>
-              ))}
-            </Box>
-          </Grid>
+        <Grid container spacing={{ xs: 0, md: 4 }} sx={{ minHeight: { xs: 'auto', md: '80vh' } }}>
+          {/* Left Side - Branding - Hidden on mobile */}
+          {!isMobile && (
+            <Grid item md={6} sx={{ 
+              display: 'flex', 
+              flexDirection: 'column', 
+              justifyContent: 'center', 
+              alignItems: 'center',
+              p: 4,
+              color: '#1e293b'
+            }}>
+              <Box sx={{ textAlign: 'center', mb: 4 }}>
+                <ShoppingCartIcon sx={{ fontSize: 80, mb: 2, color: '#10b981' }} />
+                <Typography variant="h2" fontWeight="700" gutterBottom sx={{ color: '#1e293b' }}>
+                  Smart Checkout
+                </Typography>
+                <Typography variant="h6" sx={{ color: '#64748b', maxWidth: 400 }}>
+                  Scan, Shop, and Pay with ease. The future of retail shopping is here.
+                </Typography>
+              </Box>
+              
+              {/* Features */}
+              <Box sx={{ maxWidth: 400, mt: 4 }}>
+                {[
+                  { icon: <SecurityIcon sx={{ color: '#10b981' }} />, text: 'Secure Phone Authentication' },
+                  { icon: <PhoneIcon sx={{ color: '#10b981' }} />, text: 'Multi-Country Support' },
+                  { icon: <ShoppingCartIcon sx={{ color: '#10b981' }} />, text: 'Smart Cart Management' }
+                ].map((feature, index) => (
+                  <Box key={index} sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                    {feature.icon}
+                    <Typography variant="body1" sx={{ ml: 2, color: '#64748b' }}>
+                      {feature.text}
+                    </Typography>
+                  </Box>
+                ))}
+              </Box>
+            </Grid>
+          )}
 
           <Grid item xs={12} md={6}>
             <Paper
-              elevation={24}
+              elevation={0}
               sx={{
                 p: { xs: 3, sm: 4, md: 5 },
-                borderRadius: { xs: 2, md: 4 },
-                background: 'rgba(255, 255, 255, 0.95)',
-                backdropFilter: 'blur(20px)',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
-                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+                borderRadius: 2,
+                backgroundColor: 'white',
+                border: '1px solid #f1f5f9',
+                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
                 height: '100%',
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'center',
-                minHeight: { xs: 'auto', md: '600px' }
+                minHeight: { xs: 'auto', md: '600px' },
+                maxWidth: { xs: '100%', sm: '480px' },
+                mx: 'auto'
               }}
             >
+              {/* Mobile header */}
               {isMobile && (
-                <Box sx={{ textAlign: 'center', mb: 3 }}>
-                  <ShoppingCartIcon sx={{ fontSize: 60, color: 'primary.main', mb: 1 }} />
-                  <Typography variant="h4" fontWeight="bold" color="primary">
+                <Box sx={{ textAlign: 'center', mb: 4 }}>
+                  <ShoppingCartIcon sx={{ fontSize: 60, color: '#10b981', mb: 2 }} />
+                  <Typography variant="h4" fontWeight="700" sx={{ color: '#1e293b', mb: 1 }}>
                     Smart Checkout
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: '#64748b' }}>
+                    Secure shopping experience
                   </Typography>
                 </Box>
               )}
 
-              <Typography variant="h4" fontWeight="bold" gutterBottom sx={{ textAlign: 'center' }}>
+              <Typography variant={{ xs: 'h5', sm: 'h4' }} fontWeight="600" gutterBottom sx={{ textAlign: 'center', color: '#1e293b', mb: 3 }}>
                 {step === 1 ? "Welcome" : step === 2 ? "Verify OTP" : step === 3 ? "Complete Registration" : ""}
               </Typography>
 
@@ -228,18 +235,23 @@ const LoginPage = () => {
 
               {step === 1 ? (
                 <Box component="form" onSubmit={handleSendOTP}>
-                  <Typography variant="body1" sx={{ mb: 3, textAlign: 'center', color: 'text.secondary' }}>
+                  <Typography variant="body1" sx={{ mb: 3, textAlign: 'center', color: '#64748b' }}>
                     Enter your phone number to receive a secure OTP
                   </Typography>
                   
-                  <Box sx={{ display: 'flex', gap: 1, mt: 2 }}>
-                    <FormControl sx={{ minWidth: 120 }}>
+                  <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: { xs: 2, sm: 1 }, mt: 2 }}>
+                    <FormControl sx={{ minWidth: { xs: '100%', sm: 140 } }}>
                       <InputLabel>Country</InputLabel>
                       <Select
                         value={countryCode}
                         label="Country"
                         onChange={(e) => setCountryCode(e.target.value)}
-                        sx={{ borderRadius: 2 }}
+                        sx={{ 
+                          borderRadius: 2,
+                          '& .MuiOutlinedInput-notchedOutline': {
+                            borderColor: '#e2e8f0'
+                          }
+                        }}
                       >
                         {countryCodes.map((country) => (
                           <MenuItem key={country.code} value={country.code}>
@@ -262,11 +274,20 @@ const LoginPage = () => {
                       required
                       helperText={getPhoneHelperText()}
                       InputProps={{
-                        startAdornment: <PhoneIcon sx={{ mr: 1, color: 'action.active' }} />
+                        startAdornment: <InputAdornment position="start"><PhoneIcon sx={{ color: '#64748b' }} /></InputAdornment>
                       }}
                       sx={{
                         '& .MuiOutlinedInput-root': {
                           borderRadius: 2,
+                          '& fieldset': {
+                            borderColor: '#e2e8f0'
+                          },
+                          '&:hover fieldset': {
+                            borderColor: '#10b981'
+                          },
+                          '&.Mui-focused fieldset': {
+                            borderColor: '#10b981'
+                          }
                         }
                       }}
                     />
@@ -275,15 +296,18 @@ const LoginPage = () => {
                   <Button
                     type="submit"
                     variant="contained"
-                    color="primary"
                     fullWidth
                     size="large"
                     sx={{ 
                       mt: 3, 
-                      py: 1.5,
+                      py: { xs: 1.5, sm: 2 },
                       borderRadius: 2,
-                      background: 'linear-gradient(45deg, #667eea 30%, #764ba2 90%)',
-                      boxShadow: '0 3px 5px 2px rgba(102, 126, 234, .3)',
+                      backgroundColor: '#10b981',
+                      fontWeight: 600,
+                      fontSize: { xs: '1rem', sm: '1.1rem' },
+                      '&:hover': {
+                        backgroundColor: '#059669'
+                      }
                     }}
                     disabled={loading || !phoneNumber}
                   >
@@ -291,8 +315,8 @@ const LoginPage = () => {
                   </Button>
 
                   {/* Demo User Button for Recruiters */}
-                  <Box sx={{ mt: 3, textAlign: 'center' }}>
-                    <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                  <Box sx={{ mt: 4, textAlign: 'center' }}>
+                    <Typography variant="body2" sx={{ color: '#64748b', mb: 2 }}>
                       For Recruiters & Demo
                     </Typography>
                     <Button
@@ -305,11 +329,14 @@ const LoginPage = () => {
                       }}
                       sx={{ 
                         borderRadius: 2,
-                        borderColor: 'rgba(102, 126, 234, 0.5)',
-                        color: 'primary.main',
+                        borderColor: '#e2e8f0',
+                        color: '#64748b',
+                        py: { xs: 1.5, sm: 2 },
+                        fontSize: { xs: '1rem', sm: '1.1rem' },
                         '&:hover': {
-                          borderColor: 'primary.main',
-                          background: 'rgba(102, 126, 234, 0.05)'
+                          borderColor: '#10b981',
+                          backgroundColor: '#f0fdf4',
+                          color: '#10b981'
                         }
                       }}
                     >
@@ -319,10 +346,10 @@ const LoginPage = () => {
                 </Box>
               ) : step === 2 ? (
                 <Box component="form" onSubmit={handleVerifyOTP}>
-                  <Typography variant="body1" sx={{ mb: 3, textAlign: 'center', color: 'text.secondary' }}>
+                  <Typography variant="body1" sx={{ mb: 2, textAlign: 'center', color: '#64748b' }}>
                     Enter the 6-digit OTP sent to
                   </Typography>
-                  <Typography variant="body2" sx={{ mb: 3, textAlign: 'center', fontWeight: 'bold' }}>
+                  <Typography variant="body2" sx={{ mb: 3, textAlign: 'center', fontWeight: 600, color: '#1e293b' }}>
                     {countryCode + phoneNumber}
                   </Typography>
                   
@@ -337,11 +364,20 @@ const LoginPage = () => {
                     inputProps={{ maxLength: 6, style: { textAlign: 'center', fontSize: '1.5rem', letterSpacing: '0.5rem' } }}
                     required
                     InputProps={{
-                      startAdornment: <SecurityIcon sx={{ mr: 1, color: 'action.active' }} />
+                      startAdornment: <InputAdornment position="start"><SecurityIcon sx={{ color: '#64748b' }} /></InputAdornment>
                     }}
                     sx={{
                       '& .MuiOutlinedInput-root': {
                         borderRadius: 2,
+                        '& fieldset': {
+                          borderColor: '#e2e8f0'
+                        },
+                        '&:hover fieldset': {
+                          borderColor: '#10b981'
+                        },
+                        '&.Mui-focused fieldset': {
+                          borderColor: '#10b981'
+                        }
                       }
                     }}
                   />
@@ -349,15 +385,18 @@ const LoginPage = () => {
                   <Button
                     type="submit"
                     variant="contained"
-                    color="primary"
                     fullWidth
                     size="large"
                     sx={{ 
                       mt: 3, 
-                      py: 1.5,
+                      py: { xs: 1.5, sm: 2 },
                       borderRadius: 2,
-                      background: 'linear-gradient(45deg, #667eea 30%, #764ba2 90%)',
-                      boxShadow: '0 3px 5px 2px rgba(102, 126, 234, .3)',
+                      backgroundColor: '#10b981',
+                      fontWeight: 600,
+                      fontSize: { xs: '1rem', sm: '1.1rem' },
+                      '&:hover': {
+                        backgroundColor: '#059669'
+                      }
                     }}
                     disabled={loading || otp.length !== 6}
                   >
@@ -369,7 +408,13 @@ const LoginPage = () => {
                       variant="text"
                       onClick={handleResendOTP}
                       disabled={countdown > 0 || loading}
-                      sx={{ borderRadius: 2 }}
+                      sx={{ 
+                        borderRadius: 2, 
+                        color: countdown > 0 ? '#94a3b8' : '#10b981',
+                        '&:hover': {
+                          backgroundColor: '#f0fdf4'
+                        }
+                      }}
                     >
                       {countdown > 0 ? `Resend OTP in ${countdown}s` : "Resend OTP"}
                     </Button>
@@ -377,10 +422,10 @@ const LoginPage = () => {
                 </Box>
               ) : step === 3 ? (
                 <Box component="form" onSubmit={handleCompleteRegistration}>
-                  <Typography variant="body1" sx={{ mb: 3, textAlign: 'center', color: 'text.secondary' }}>
+                  <Typography variant="body1" sx={{ mb: 2, textAlign: 'center', color: '#64748b' }}>
                     Complete your profile to get started
                   </Typography>
-                  <Typography variant="body2" sx={{ mb: 3, textAlign: 'center', fontWeight: 'bold' }}>
+                  <Typography variant="body2" sx={{ mb: 3, textAlign: 'center', fontWeight: 600, color: '#1e293b' }}>
                     Phone: {countryCode + phoneNumber}
                   </Typography>
                   
@@ -396,6 +441,15 @@ const LoginPage = () => {
                     sx={{
                       '& .MuiOutlinedInput-root': {
                         borderRadius: 2,
+                        '& fieldset': {
+                          borderColor: '#e2e8f0'
+                        },
+                        '&:hover fieldset': {
+                          borderColor: '#10b981'
+                        },
+                        '&.Mui-focused fieldset': {
+                          borderColor: '#10b981'
+                        }
                       }
                     }}
                   />
@@ -412,6 +466,15 @@ const LoginPage = () => {
                     sx={{
                       '& .MuiOutlinedInput-root': {
                         borderRadius: 2,
+                        '& fieldset': {
+                          borderColor: '#e2e8f0'
+                        },
+                        '&:hover fieldset': {
+                          borderColor: '#10b981'
+                        },
+                        '&.Mui-focused fieldset': {
+                          borderColor: '#10b981'
+                        }
                       }
                     }}
                   />
@@ -419,15 +482,18 @@ const LoginPage = () => {
                   <Button
                     type="submit"
                     variant="contained"
-                    color="primary"
                     fullWidth
                     size="large"
                     sx={{ 
                       mt: 3, 
-                      py: 1.5,
+                      py: { xs: 1.5, sm: 2 },
                       borderRadius: 2,
-                      background: 'linear-gradient(45deg, #667eea 30%, #764ba2 90%)',
-                      boxShadow: '0 3px 5px 2px rgba(102, 126, 234, .3)',
+                      backgroundColor: '#10b981',
+                      fontWeight: 600,
+                      fontSize: { xs: '1rem', sm: '1.1rem' },
+                      '&:hover': {
+                        backgroundColor: '#059669'
+                      }
                     }}
                     disabled={loading || !name.trim()}
                   >

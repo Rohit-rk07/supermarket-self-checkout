@@ -1,5 +1,5 @@
 // frontend/src/services/RazorpayService.js
-import Razorpay from 'razorpay';
+// Note: Razorpay is loaded via the Checkout.js script and accessed as window.Razorpay
 
 const loadRazorpayScript = () => {
   return new Promise((resolve) => {
@@ -24,13 +24,20 @@ export const initializeRazorpayPayment = async (orderDetails) => {
 
   // Create payment options
   const options = {
-    key: process.env.REACT_APP_RAZORPAY_KEY_ID || 'rzp_test_YOUR_TEST_KEY', // Replace with your key
-    amount: orderDetails.amount * 100, // Razorpay expects amount in paise
+    key: orderDetails.key || (import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_YOUR_TEST_KEY'), // Prefer backend-provided key
+    amount: orderDetails.amount, // Amount should already be in paise
     currency: orderDetails.currency || 'INR',
     name: 'Supermarket Checkout',
     description: 'Purchase Payment',
     order_id: orderDetails.orderId, // This comes from the backend
     handler: orderDetails.handler,
+    modal: {
+      ondismiss: function() {
+        if (orderDetails.onFailure) {
+          orderDetails.onFailure({ error: { description: 'Payment cancelled by user' } });
+        }
+      }
+    },
     prefill: {
       name: orderDetails.customerName || '',
       email: orderDetails.customerEmail || '',
@@ -40,12 +47,20 @@ export const initializeRazorpayPayment = async (orderDetails) => {
       address: 'Self Checkout System'
     },
     theme: {
-      color: '#1976d2', // Match your primary color
+      color: '#10b981', // Match your primary green color
     }
   };
 
   // Create Razorpay instance and open payment modal
   const razorpay = new window.Razorpay(options);
+  
+  // Handle payment failure
+  razorpay.on('payment.failed', function (response) {
+    if (orderDetails.onFailure) {
+      orderDetails.onFailure(response);
+    }
+  });
+  
   razorpay.open();
   
   return razorpay;

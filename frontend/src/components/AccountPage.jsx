@@ -43,7 +43,6 @@ import {
     Receipt, 
     ShoppingCart, 
     DateRange, 
-    AttachMoney,
     ArrowBack,
     Phone,
     Logout,
@@ -111,6 +110,17 @@ const AccountPage = () => {
         setReceiptDialogOpen(false);
     };
 
+    // Helpers to compute totals with GST (18%) and proper rounding
+    const round2 = (n) => Math.round(n * 100) / 100;
+    const getTotals = (order) => {
+        const items = (order?.items || []);
+        const subtotal = items.reduce((sum, it) => sum + ((it.price || 0) * (it.quantity || 1)), 0);
+        const tax = (typeof order?.tax === 'number') ? round2(order.tax) : round2(subtotal * 0.18);
+        // Always compute total as subtotal + tax to avoid using pre-tax backend "total"
+        const total = round2(subtotal + tax);
+        return { subtotal: round2(subtotal), tax, total };
+    };
+
     // If user is not logged in, redirect to login
     if (!user) {
         navigate("/login");
@@ -120,20 +130,19 @@ const AccountPage = () => {
     return (
         <Box sx={{ 
             minHeight: '100vh', 
-            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            backgroundColor: '#f8fafc',
             py: 4
         }}>
             <Container maxWidth="lg">
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 4 }}>
-                    <Avatar sx={{ bgcolor: 'rgba(255,255,255,0.2)', mr: 2, width: 56, height: 56 }}>
+                    <Avatar sx={{ bgcolor: '#1e293b', mr: 2, width: 56, height: 56 }}>
                         <Store sx={{ fontSize: 32, color: 'white' }} />
                     </Avatar>
                     <Typography 
                         variant="h3" 
-                        fontWeight="bold" 
+                        fontWeight="700" 
                         sx={{ 
-                            color: 'white',
-                            textShadow: '0 2px 4px rgba(0,0,0,0.3)'
+                            color: '#1e293b'
                         }}
                     >
                         My Account
@@ -143,13 +152,12 @@ const AccountPage = () => {
                     {/* Sidebar */}
                     <Grid item xs={12} md={4} lg={3}>
                         <Card 
-                            elevation={24}
+                            elevation={0}
                             sx={{ 
-                                borderRadius: 4,
-                                background: 'rgba(255, 255, 255, 0.95)',
-                                backdropFilter: 'blur(20px)',
-                                border: '1px solid rgba(255, 255, 255, 0.2)',
-                                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+                                borderRadius: 2,
+                                backgroundColor: 'white',
+                                border: '1px solid #f1f5f9',
+                                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
                             }}
                         >
                             <CardContent sx={{ textAlign: 'center', p: 3 }}>
@@ -157,22 +165,23 @@ const AccountPage = () => {
                                     sx={{ 
                                         width: 80, 
                                         height: 80, 
-                                        bgcolor: theme.palette.primary.main,
+                                        bgcolor: '#1e293b',
                                         fontSize: 32,
                                         mb: 2,
-                                        mx: 'auto'
+                                        mx: 'auto',
+                                        color: 'white'
                                     }}
                                 >
                                     {user.name ? user.name[0].toUpperCase() : "U"}
                                 </Avatar>
-                                <Typography variant="h6" fontWeight="bold" gutterBottom>
+                                <Typography variant="h6" fontWeight="600" sx={{ color: '#1e293b' }} gutterBottom>
                                     {user.name || "User"}
                                 </Typography>
-                                <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                                <Typography variant="body2" sx={{ color: '#64748b', mb: 3 }}>
                                     {user.email || user.phoneNumber}
                                 </Typography>
                                 
-                                <Divider sx={{ my: 2 }} />
+                                <Divider sx={{ my: 2, borderColor: '#f1f5f9' }} />
                                 
                                 <Tabs
                                     orientation="vertical"
@@ -182,17 +191,24 @@ const AccountPage = () => {
                                         '& .MuiTab-root': {
                                             alignItems: 'flex-start',
                                             textAlign: 'left',
-                                            minHeight: 48
+                                            minHeight: 48,
+                                            color: '#64748b',
+                                            '&.Mui-selected': {
+                                                color: '#1e293b'
+                                            }
+                                        },
+                                        '& .MuiTabs-indicator': {
+                                            backgroundColor: '#10b981'
                                         }
                                     }}
                                 >
                                     <Tab 
-                                        icon={<Person sx={{ mr: 1 }} />} 
+                                        icon={<Person sx={{ mr: 1, color: 'inherit' }} />} 
                                         label="Profile" 
                                         iconPosition="start"
                                     />
                                     <Tab 
-                                        icon={<Receipt sx={{ mr: 1 }} />} 
+                                        icon={<Receipt sx={{ mr: 1, color: 'inherit' }} />} 
                                         label="Purchase History" 
                                         iconPosition="start"
                                     />
@@ -200,14 +216,17 @@ const AccountPage = () => {
                                 
                                 <Button
                                     variant="contained"
-                                    color="error"
                                     fullWidth
                                     startIcon={<Logout />}
                                     onClick={handleLogout}
                                     sx={{ 
                                         mt: 3,
                                         borderRadius: 2,
-                                        py: 1.2
+                                        py: 1.2,
+                                        backgroundColor: '#ef4444',
+                                        '&:hover': {
+                                            backgroundColor: '#dc2626'
+                                        }
                                     }}
                                 >
                                     Logout
@@ -221,44 +240,43 @@ const AccountPage = () => {
                         {/* Profile Tab */}
                         {activeTab === 0 && (
                             <Card 
-                                elevation={24} 
+                                elevation={0} 
                                 sx={{ 
-                                    borderRadius: 4,
-                                    background: 'rgba(255, 255, 255, 0.95)',
-                                    backdropFilter: 'blur(20px)',
-                                    border: '1px solid rgba(255, 255, 255, 0.2)',
-                                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+                                    borderRadius: 2,
+                                    backgroundColor: 'white',
+                                    border: '1px solid #f1f5f9',
+                                    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
                                 }}
                             >
                                 <CardContent sx={{ p: 4 }}>
-                                <Typography variant="h5" fontWeight="bold" sx={{ mb: 3 }}>
-                                    <Person sx={{ mr: 1, verticalAlign: "middle" }} />
+                                <Typography variant="h5" fontWeight="600" sx={{ mb: 3, color: '#1e293b' }}>
+                                    <Person sx={{ mr: 1, verticalAlign: "middle", color: '#10b981' }} />
                                     My Profile
                                 </Typography>
                                 
                                 <Grid container spacing={3}>
                                     <Grid item xs={12} sm={6}>
-                                        <Typography variant="subtitle2" color="text.secondary">
+                                        <Typography variant="subtitle2" sx={{ color: '#64748b', mb: 1 }}>
                                             Full Name
                                         </Typography>
-                                        <Typography variant="body1" fontWeight="medium" sx={{ mb: 2 }}>
+                                        <Typography variant="body1" fontWeight="500" sx={{ mb: 3, color: '#1e293b' }}>
                                             {user.name || "Not set"}
                                         </Typography>
                                         
-                                        <Typography variant="subtitle2" color="text.secondary">
+                                        <Typography variant="subtitle2" sx={{ color: '#64748b', mb: 1 }}>
                                             Phone Number
                                         </Typography>
-                                        <Typography variant="body1" fontWeight="medium" sx={{ mb: 2 }}>
-                                            <Phone sx={{ mr: 1, fontSize: 16, verticalAlign: 'middle' }} />
+                                        <Typography variant="body1" fontWeight="500" sx={{ mb: 3, color: '#1e293b', display: 'flex', alignItems: 'center' }}>
+                                            <Phone sx={{ mr: 1, fontSize: 16, color: '#10b981' }} />
                                             {user.phoneNumber}
                                         </Typography>
                                         
                                         {user.email && (
                                             <>
-                                                <Typography variant="subtitle2" color="text.secondary">
+                                                <Typography variant="subtitle2" sx={{ color: '#64748b', mb: 1 }}>
                                                     Email Address
                                                 </Typography>
-                                                <Typography variant="body1" fontWeight="medium" sx={{ mb: 2 }}>
+                                                <Typography variant="body1" fontWeight="500" sx={{ mb: 3, color: '#1e293b' }}>
                                                     {user.email}
                                                 </Typography>
                                             </>
@@ -266,17 +284,17 @@ const AccountPage = () => {
                                     </Grid>
                                     
                                     <Grid item xs={12} sm={6}>
-                                        <Typography variant="subtitle2" color="text.secondary">
+                                        <Typography variant="subtitle2" sx={{ color: '#64748b', mb: 1 }}>
                                             Account Type
                                         </Typography>
-                                        <Typography variant="body1" fontWeight="medium" sx={{ mb: 2 }}>
+                                        <Typography variant="body1" fontWeight="500" sx={{ mb: 3, color: '#1e293b' }}>
                                             Phone Authentication
                                         </Typography>
                                         
-                                        <Typography variant="subtitle2" color="text.secondary">
+                                        <Typography variant="subtitle2" sx={{ color: '#64748b', mb: 1 }}>
                                             Total Orders
                                         </Typography>
-                                        <Typography variant="body1" fontWeight="medium">
+                                        <Typography variant="body1" fontWeight="500" sx={{ color: '#1e293b' }}>
                                             {loading ? <CircularProgress size={16} /> : orders.length}
                                         </Typography>
                                     </Grid>
@@ -288,44 +306,49 @@ const AccountPage = () => {
                         {/* Purchase History Tab */}
                         {activeTab === 1 && (
                             <Card 
-                                elevation={24} 
+                                elevation={0} 
                                 sx={{ 
-                                    borderRadius: 4,
-                                    background: 'rgba(255, 255, 255, 0.95)',
-                                    backdropFilter: 'blur(20px)',
-                                    border: '1px solid rgba(255, 255, 255, 0.2)',
-                                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+                                    borderRadius: 2,
+                                    backgroundColor: 'white',
+                                    border: '1px solid #f1f5f9',
+                                    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
                                 }}
                             >
                                 <CardContent sx={{ p: 4 }}>
-                                <Typography variant="h5" fontWeight="bold" sx={{ mb: 3 }}>
-                                    <Receipt sx={{ mr: 1, verticalAlign: "middle" }} />
+                                <Typography variant="h5" fontWeight="600" sx={{ mb: 3, color: '#1e293b' }}>
+                                    <Receipt sx={{ mr: 1, verticalAlign: "middle", color: '#10b981' }} />
                                     Purchase History
                                 </Typography>
                                 
                                 {error && (
-                                    <Alert severity="error" sx={{ mb: 3 }}>
+                                    <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>
                                         {error}
                                     </Alert>
                                 )}
                                 
                                 {loading ? (
                                     <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
-                                        <CircularProgress />
+                                        <CircularProgress sx={{ color: '#10b981' }} />
                                     </Box>
                                 ) : orders.length === 0 ? (
                                     <Box sx={{ p: 3, textAlign: "center" }}>
-                                        <ShoppingCart sx={{ fontSize: 48, color: "text.secondary", mb: 2 }} />
-                                        <Typography variant="h6" gutterBottom>
+                                        <ShoppingCart sx={{ fontSize: 48, color: "#94a3b8", mb: 2 }} />
+                                        <Typography variant="h6" gutterBottom sx={{ color: '#1e293b' }}>
                                             No Purchases Yet
                                         </Typography>
-                                        <Typography variant="body2" color="text.secondary" paragraph>
+                                        <Typography variant="body2" sx={{ color: '#64748b' }} paragraph>
                                             You haven't made any purchases yet.
                                         </Typography>
                                         <Button 
                                             variant="contained" 
                                             onClick={() => navigate("/")} 
-                                            sx={{ mt: 1 }}
+                                            sx={{ 
+                                                mt: 1,
+                                                backgroundColor: '#10b981',
+                                                '&:hover': {
+                                                    backgroundColor: '#059669'
+                                                }
+                                            }}
                                         >
                                             Start Shopping
                                         </Button>
@@ -333,117 +356,141 @@ const AccountPage = () => {
                                 ) : (
                                     <List disablePadding>
                                         {orders.map((order, index) => (
-                                            <Card key={order._id} sx={{ mb: 3, borderRadius: 2 }}>
-                                                <CardContent>
+                                            <Card key={order._id} sx={{ mb: 3, borderRadius: 2, border: '1px solid #f1f5f9' }}>
+                                                <CardContent sx={{ p: 3 }}>
                                                     <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-                                                        <Typography variant="h6" fontWeight="medium">
+                                                        <Typography variant="h6" fontWeight="600" sx={{ color: '#1e293b' }}>
                                                             Purchase #{order._id.slice(-6).toUpperCase()}
                                                         </Typography>
                                                         <Chip 
                                                             label={order.status} 
-                                                            color={order.status === "completed" ? "success" : "primary"}
+                                                            sx={{
+                                                                backgroundColor: order.status === "completed" ? '#dcfce7' : '#dbeafe',
+                                                                color: order.status === "completed" ? '#166534' : '#1e40af',
+                                                                fontWeight: 500
+                                                            }}
                                                             size="small"
                                                         />
                                                     </Box>
                                                     
                                                     <Box sx={{ display: "flex", gap: 2, mb: 2, flexWrap: "wrap" }}>
                                                         <Box sx={{ display: "flex", alignItems: "center" }}>
-                                                            <DateRange fontSize="small" sx={{ mr: 0.5, color: "text.secondary" }} />
-                                                            <Typography variant="body2" color="text.secondary">
+                                                            <DateRange fontSize="small" sx={{ mr: 0.5, color: "#64748b" }} />
+                                                            <Typography variant="body2" sx={{ color: '#64748b' }}>
                                                                 {order.createdAt ? new Date(order.createdAt).toLocaleDateString() : 'N/A'}
                                                             </Typography>
                                                         </Box>
                                                         <Box sx={{ display: "flex", alignItems: "center" }}>
-                                                            <AttachMoney fontSize="small" sx={{ mr: 0.5, color: "text.secondary" }} />
-                                                            <Typography variant="body2" color="text.secondary">
-                                                                ₹{order.total ? order.total.toFixed(2) : '0.00'}
-                                                            </Typography>
-                                                        </Box>
-                                                        <Box sx={{ display: "flex", alignItems: "center" }}>
-                                                            <ShoppingCart fontSize="small" sx={{ mr: 0.5, color: "text.secondary" }} />
-                                                            <Typography variant="body2" color="text.secondary">
+                                                            <ShoppingCart fontSize="small" sx={{ mr: 0.5, color: "#64748b" }} />
+                                                            <Typography variant="body2" sx={{ color: '#64748b' }}>
                                                                 {order.items ? order.items.length : 0} {(order.items && order.items.length === 1) ? "item" : "items"}
                                                             </Typography>
                                                         </Box>
                                                     </Box>
                                                     
-                                                    <Divider sx={{ mb: 2 }} />
+                                                    <Divider sx={{ mb: 2, borderColor: '#f1f5f9' }} />
                                                     
-                                                    <List dense>
-                                                        {(order.items || []).slice(0, 3).map((item, idx) => (
-                                                            <ListItem key={idx} disableGutters>
-                                                                <ListItemText
-                                                                    primary={item.name}
-                                                                    secondary={`${item.quantity || 1} × ₹${item.price ? item.price.toFixed(2) : '0.00'}`}
-                                                                />
-                                                                <Typography variant="body2" fontWeight="medium">
-                                                                    ₹{((item.quantity || 1) * (item.price || 0)).toFixed(2)}
-                                                                </Typography>
-                                                            </ListItem>
-                                                        ))}
-                                                        
-                                                        {(order.items && order.items.length > 3) && (
-                                                            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                                                                +{order.items.length - 3} more items
-                                                            </Typography>
-                                                        )}
-                                                    </List>
-                                                    
-                                                    <Divider sx={{ my: 2 }} />
-                                                    
-                                                    <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-                                                        <Typography variant="subtitle2">Total</Typography>
-                                                        <Typography variant="subtitle1" fontWeight="bold">
-                                                            ₹{order.total ? order.total.toFixed(2) : '0.00'}
+                                                    {/* Always show the items table at the top */}
+                                                    <CardContent sx={{ p: 2, pt: 0 }}>
+                                                        <Typography variant="h6" fontWeight="600" sx={{ mb: 2, color: '#1e293b' }}>
+                                                            Items
                                                         </Typography>
-                                                    </Box>
+                                                        <TableContainer>
+                                                            <Table size="small">
+                                                                <TableHead>
+                                                                    <TableRow>
+                                                                        <TableCell sx={{ fontWeight: 600, color: '#64748b' }}>Item</TableCell>
+                                                                        <TableCell align="right" sx={{ fontWeight: 600, color: '#64748b' }}>Quantity</TableCell>
+                                                                        <TableCell align="right" sx={{ fontWeight: 600, color: '#64748b' }}>Price</TableCell>
+                                                                        <TableCell align="right" sx={{ fontWeight: 600, color: '#64748b' }}>Total</TableCell>
+                                                                    </TableRow>
+                                                                </TableHead>
+                                                                <TableBody>
+                                                                    {order.items.map((item, index) => (
+                                                                        <TableRow key={index}>
+                                                                            <TableCell sx={{ color: '#1e293b' }}>{item.name}</TableCell>
+                                                                            <TableCell align="right" sx={{ color: '#1e293b' }}>{item.quantity}</TableCell>
+                                                                            <TableCell align="right" sx={{ color: '#1e293b' }}>₹{item.price ? item.price.toFixed(2) : '0.00'}</TableCell>
+                                                                            <TableCell align="right" sx={{ color: '#10b981', fontWeight: 600 }}>₹{((item.quantity || 1) * (item.price || 0)).toFixed(2)}</TableCell>
+                                                                        </TableRow>
+                                                                    ))}
+                                                                </TableBody>
+                                                            </Table>
+                                                        </TableContainer>
+                                                    </CardContent>
                                                     
-                                                    <Box sx={{ display: "flex", justifyContent: "space-between", mt: 2 }}>
+                                                    <Box sx={{ display: "flex", gap: 2, mt: 3 }}>
                                                         <Button 
-                                                            variant="contained" 
+                                                            variant="outlined" 
                                                             onClick={() => handlePurchaseClick(order)} 
-                                                            startIcon={<ExpandMore />}
+                                                            startIcon={expandedPurchase === order._id ? <ExpandLess /> : <ExpandMore />}
+                                                            sx={{
+                                                                borderColor: '#e2e8f0',
+                                                                color: '#64748b',
+                                                                '&:hover': {
+                                                                    borderColor: '#1e293b',
+                                                                    backgroundColor: '#f8fafc'
+                                                                }
+                                                            }}
                                                         >
-                                                            View Details
+                                                            {expandedPurchase === order._id ? 'Hide Details' : 'View Details'}
                                                         </Button>
                                                         <Button 
                                                             variant="contained" 
                                                             onClick={() => handlePrintReceipt(order)} 
                                                             startIcon={<Print />}
+                                                            sx={{
+                                                                backgroundColor: '#10b981',
+                                                                '&:hover': {
+                                                                    backgroundColor: '#059669'
+                                                                }
+                                                            }}
                                                         >
                                                             Print Receipt
                                                         </Button>
                                                     </Box>
                                                     
+                                                    {/* Show summary with taxes under the buttons */}
                                                     <Collapse in={expandedPurchase === order._id} timeout="auto" unmountOnExit>
-                                                        <CardContent sx={{ p: 2, pt: 0 }}>
-                                                            <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
-                                                                Purchase Details
-                                                            </Typography>
+                                                        <>
+                                                            <List dense>
+                                                                {(order.items || []).slice(0, 3).map((item, idx) => (
+                                                                    <ListItem key={idx} disableGutters>
+                                                                        <ListItemText
+                                                                            primary={<Typography variant="body2" sx={{ color: '#1e293b', fontWeight: 500 }}>{item.name}</Typography>}
+                                                                            secondary={<Typography variant="caption" sx={{ color: '#64748b' }}>{`${item.quantity || 1} × ₹${item.price ? item.price.toFixed(2) : '0.00'}`}</Typography>}
+                                                                        />
+                                                                        <Typography variant="body2" fontWeight="600" sx={{ color: '#10b981' }}>
+                                                                            ₹{((item.quantity || 1) * (item.price || 0)).toFixed(2)}
+                                                                        </Typography>
+                                                                    </ListItem>
+                                                                ))}
+                                                                {(order.items && order.items.length > 3) && (
+                                                                    <Typography variant="body2" sx={{ color: '#64748b', mt: 1 }}>
+                                                                        +{order.items.length - 3} more items
+                                                                    </Typography>
+                                                                )}
+                                                            </List>
                                                             
-                                                            <TableContainer>
-                                                                <Table size="small">
-                                                                    <TableHead>
-                                                                        <TableRow>
-                                                                            <TableCell>Item</TableCell>
-                                                                            <TableCell align="right">Quantity</TableCell>
-                                                                            <TableCell align="right">Price</TableCell>
-                                                                            <TableCell align="right">Total</TableCell>
-                                                                        </TableRow>
-                                                                    </TableHead>
-                                                                    <TableBody>
-                                                                        {order.items.map((item, index) => (
-                                                                            <TableRow key={index}>
-                                                                                <TableCell>{item.name}</TableCell>
-                                                                                <TableCell align="right">{item.quantity}</TableCell>
-                                                                                <TableCell align="right">₹{item.price ? item.price.toFixed(2) : '0.00'}</TableCell>
-                                                                                <TableCell align="right">₹{((item.quantity || 1) * (item.price || 0)).toFixed(2)}</TableCell>
-                                                                            </TableRow>
-                                                                        ))}
-                                                                    </TableBody>
-                                                                </Table>
-                                                            </TableContainer>
-                                                        </CardContent>
+                                                            <Divider sx={{ my: 2, borderColor: '#f1f5f9' }} />
+                                                            
+                                                            {(() => { const t = getTotals(order); return (
+                                                                <>
+                                                                    <Box sx={{ display: "flex", justifyContent: "space-between", mb: 0.5 }}>
+                                                                        <Typography variant="subtitle2" sx={{ color: '#64748b' }}>Subtotal</Typography>
+                                                                        <Typography variant="subtitle2" sx={{ color: '#1e293b' }}>₹{t.subtotal.toFixed(2)}</Typography>
+                                                                    </Box>
+                                                                    <Box sx={{ display: "flex", justifyContent: "space-between", mb: 0.5 }}>
+                                                                        <Typography variant="subtitle2" sx={{ color: '#64748b' }}>GST (18%)</Typography>
+                                                                        <Typography variant="subtitle2" sx={{ color: '#1e293b' }}>₹{t.tax.toFixed(2)}</Typography>
+                                                                    </Box>
+                                                                    <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                                                                        <Typography variant="subtitle2" sx={{ color: '#64748b' }}>Total</Typography>
+                                                                        <Typography variant="subtitle1" fontWeight="700" sx={{ color: '#1e293b' }}>₹{t.total.toFixed(2)}</Typography>
+                                                                    </Box>
+                                                                </>
+                                                            ); })()}
+                                                        </>
                                                     </Collapse>
                                                 </CardContent>
                                             </Card>
@@ -458,15 +505,17 @@ const AccountPage = () => {
                 
                 {/* Floating Back Button */}
                 <Fab
-                    color="secondary"
                     sx={{
                         position: 'fixed',
                         bottom: 24,
                         left: 24,
-                        background: 'rgba(255, 255, 255, 0.9)',
+                        backgroundColor: '#1e293b',
+                        color: 'white',
                         '&:hover': {
-                            background: 'rgba(255, 255, 255, 1)',
-                        }
+                            backgroundColor: '#334155',
+                            transform: 'scale(1.1)'
+                        },
+                        transition: 'all 0.2s ease-in-out'
                     }}
                     onClick={() => navigate('/dashboard')}
                 >
@@ -479,16 +528,22 @@ const AccountPage = () => {
                     onClose={() => setReceiptDialogOpen(false)}
                     maxWidth="sm"
                     fullWidth
+                    PaperProps={{
+                        sx: {
+                            borderRadius: 2,
+                            border: '1px solid #f1f5f9'
+                        }
+                    }}
                 >
-                    <DialogTitle>Print Receipt</DialogTitle>
-                    <DialogContent dividers>
+                    <DialogTitle sx={{ color: '#1e293b', fontWeight: 600 }}>Print Receipt</DialogTitle>
+                    <DialogContent dividers sx={{ borderColor: '#f1f5f9' }}>
                         {selectedPurchase && (
                             <div id="receipt-content" style={{ width: '300px', margin: '0 auto' }}>
                                 <div className="header">
-                                    <Typography variant="h6" fontWeight="bold" sx={{ mb: 1 }}>
+                                    <Typography variant="h6" fontWeight="600" sx={{ mb: 1, color: '#1e293b' }}>
                                         Purchase Receipt
                                     </Typography>
-                                    <Typography variant="body2" color="text.secondary">
+                                    <Typography variant="body2" sx={{ color: '#64748b' }}>
                                         {selectedPurchase._id.slice(-6).toUpperCase()}
                                     </Typography>
                                 </div>
@@ -496,27 +551,52 @@ const AccountPage = () => {
                                 <div className="items">
                                     {selectedPurchase.items && selectedPurchase.items.map((item, index) => (
                                         <div key={index} className="item">
-                                            <Typography variant="body2">
+                                            <Typography variant="body2" sx={{ color: '#1e293b' }}>
                                                 {item.name}
                                             </Typography>
-                                            <Typography variant="body2" fontWeight="medium">
+                                            <Typography variant="body2" fontWeight="600" sx={{ color: '#10b981' }}>
                                                 ₹{((item.quantity || 1) * (item.price || 0)).toFixed(2)}
                                             </Typography>
                                         </div>
                                     ))}
                                 </div>
                                 
-                                <div className="total">
-                                    <Typography variant="h6" fontWeight="bold">
-                                        Total: ₹{selectedPurchase.total ? selectedPurchase.total.toFixed(2) : '0.00'}
-                                    </Typography>
-                                </div>
+                                {(() => { const t = getTotals(selectedPurchase || {}); return (
+                                    <div className="total">
+                                        <Typography variant="body2" sx={{ color: '#1e293b' }}>
+                                            Subtotal: ₹{t.subtotal.toFixed(2)}
+                                        </Typography>
+                                        <Typography variant="body2" sx={{ color: '#1e293b' }}>
+                                            GST (18%): ₹{t.tax.toFixed(2)}
+                                        </Typography>
+                                        <Typography variant="h6" fontWeight="700" sx={{ color: '#1e293b' }}>
+                                            Total: ₹{t.total.toFixed(2)}
+                                        </Typography>
+                                    </div>
+                                ); })()}
                             </div>
                         )}
                     </DialogContent>
                     <DialogActions>
-                        <Button onClick={() => setReceiptDialogOpen(false)}>Cancel</Button>
-                        <Button onClick={printReceipt} disabled={!selectedPurchase}>Print</Button>
+                        <Button 
+                            onClick={() => setReceiptDialogOpen(false)}
+                            sx={{ color: '#64748b' }}
+                        >
+                            Cancel
+                        </Button>
+                        <Button 
+                            onClick={printReceipt} 
+                            disabled={!selectedPurchase}
+                            sx={{
+                                backgroundColor: '#10b981',
+                                color: 'white',
+                                '&:hover': {
+                                    backgroundColor: '#059669'
+                                }
+                            }}
+                        >
+                            Print
+                        </Button>
                     </DialogActions>
                 </Dialog>
             </Container>
