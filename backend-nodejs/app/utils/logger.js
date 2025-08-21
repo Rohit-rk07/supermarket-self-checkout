@@ -40,7 +40,7 @@ class Logger {
         };
 
         // Console format with colors
-        const consoleMessage = `${COLORS[level]}[${timestamp}] ${level}: ${message}${COLORS.RESET}`;
+        const consoleMessage = `${COLORS[level]}[${timestamp}] ${level}: ${message}${Object.keys(meta).length ? `\n${COLORS.RESET}${JSON.stringify(meta, null, 2)}` : ''}${COLORS.RESET}`;
         
         // File format (JSON)
         const fileMessage = JSON.stringify(logEntry) + '\n';
