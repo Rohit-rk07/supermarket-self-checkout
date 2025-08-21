@@ -19,7 +19,6 @@
     "joi": "^17.13.3",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.0.3",
-    "nodemailer": "^6.10.1",
     "razorpay": "^2.9.2",
     "twilio": "^5.8.0"
   },

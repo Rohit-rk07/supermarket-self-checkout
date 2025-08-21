@@ -1,0 +1,32 @@
+# Node
+node_modules/
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.DS_Store
+Thumbs.db
+
+# Env (do not ignore .env.example)
+.env
+backend-nodejs/.env
+frontend/.env
+
+# Logs
+logs/
+*.log
+*.log.*
+npm-debug.log*
+yarn-debug.log*
+
+# Build outputs
+dist/
+build/
+frontend/dist/
+
+# Coverage
+coverage/
+
+# Editor/OS
+.vscode/
+.idea/
+*.swp

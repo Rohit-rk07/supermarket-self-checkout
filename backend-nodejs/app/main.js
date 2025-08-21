@@ -43,8 +43,12 @@ const limiter = rateLimit({
 app.use(limiter);
 
 // CORS middleware
+const defaultOrigins = ['http://localhost:5173'];
+const envOrigins = (process.env.CORS_ORIGINS || '').split(',').map(s => s.trim()).filter(Boolean);
+const allowedOrigins = [...new Set([...defaultOrigins, ...envOrigins])];
+
 app.use(cors({
-  origin: ["http://localhost:5173", "https://supermarket-self-checkout-wheat.vercel.app"],
+  origin: allowedOrigins,
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization", "demo-token"]
