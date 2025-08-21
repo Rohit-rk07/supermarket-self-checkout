@@ -21,7 +21,7 @@ function App() {
         <ThemeProvider theme={theme}>
             <CssBaseline />
             <Router> 
-                <AuthProvider> 
+                <AuthProvider>
                     <CartProvider>
                         <OrderProvider>
                             <Suspense fallback={<LoadingSpinner message="Loading page..." />}>
