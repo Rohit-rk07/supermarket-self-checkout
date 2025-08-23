@@ -28,21 +28,6 @@ connectDB();
 
 const app = express();
 
-// CORS middleware (must be first)
-const defaultOrigins = ['http://localhost:5173'];
-const envOrigins = (process.env.CORS_ORIGINS || '').split(',').map(s => s.trim()).filter(Boolean);
-const allowedOrigins = [...new Set([...defaultOrigins, ...envOrigins])];
-
-app.use(cors({
-  origin: allowedOrigins,
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization", "demo-token", "Accept", "X-Requested-With"]
-}));
-
-// Explicitly handle CORS preflight for all routes
-app.options('*', cors());
-
 // Security middleware
 app.use(helmet());
 
@@ -55,9 +40,23 @@ const limiter = rateLimit({
     details: 'Please try again later'
   }
 });
-app.use(limiter());
+app.use(limiter);
+
+// CORS middleware
+const defaultOrigins = ['http://localhost:5173'];
+const envOrigins = (process.env.CORS_ORIGINS || '').split(',').map(s => s.trim()).filter(Boolean);
+const allowedOrigins = [...new Set([...defaultOrigins, ...envOrigins])];
+
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "demo-token", "Accept", "X-Requested-With"]
+}));
 
 // HTTP request logging
+// Explicitly handle CORS preflight for all routes
+app.options('*', cors());
 
 app.use(httpLogger);
 
