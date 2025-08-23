@@ -50,11 +50,14 @@ const allowedOrigins = [...new Set([...defaultOrigins, ...envOrigins])];
 app.use(cors({
   origin: allowedOrigins,
   credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  allowedHeaders: ["Content-Type", "Authorization", "demo-token"]
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "demo-token", "Accept", "X-Requested-With"]
 }));
 
 // HTTP request logging
+// Explicitly handle CORS preflight for all routes
+app.options('*', cors());
+
 app.use(httpLogger);
 
 // Body parsing middleware
