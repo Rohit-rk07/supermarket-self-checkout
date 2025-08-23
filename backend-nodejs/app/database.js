@@ -1,13 +1,11 @@
 import mongoose from 'mongoose';
 
-const DATABASE_URL = process.env.MONGODB_URI || "mongodb://localhost:27017/supermarket-checkout";
-
 const connectDB = async () => {
   try {
-    await mongoose.connect(DATABASE_URL, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    const DATABASE_URL = process.env.MONGODB_URI || "mongodb://localhost:27017/supermarket-checkout";
+    await mongoose.connect(DATABASE_URL);
+    console.log(`🌐 Host: ${mongoose.connection.host}`);
+    console.log(`🧭 DB:   ${mongoose.connection.name}`);
     console.log('✅ MongoDB Connected Successfully');
     console.log(`📊 Database: ${mongoose.connection.name}`);
   } catch (error) {
