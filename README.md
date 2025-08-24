@@ -56,7 +56,7 @@ JWT_EXPIRES_IN=7d
 RAZORPAY_KEY_ID=rzp_test_xxxxxxxxxxxxx
 RAZORPAY_KEY_SECRET=xxxxxxxxxxxxxxxxxxxx
 
-# Frontend URL (for CORS and links)
+# Frontend URL
 FRONTEND_URL=http://localhost:5173
 
 # Twilio (for OTP)
@@ -73,11 +73,6 @@ LOG_LEVEL=INFO
 # Backend base URL used by the app
 VITE_SERVER_URL=http://localhost:3000
 
-# Optional: expose Razorpay key for fallback (backend already sends key in response)
-# VITE_RAZORPAY_KEY_ID=rzp_test_xxxxxxxxxxxxx
-```
-
-> Security note: never commit real secrets. Use environment settings in your hosting provider.
 
 ---
 
@@ -108,6 +103,24 @@ npm run dev
 
 ---
 
+## ➕ Add products to the database
+
+- Seed sample products (recommended):
+  - From `backend-nodejs/` run:
+  ```bash
+  npm run seed
+  ```
+  - This clears the `products` collection and inserts sample items.
+
+- Add a single product via API (optional):
+  - POST `http://localhost:3000/api/v1/products`
+  - Body:
+  ```json
+  { "barcode": "12345678", "name": "Sample Product", "price": 99.99 }
+  ```
+
+---
+
 ## 🔐 Authentication
 - Phone OTP with Twilio (dev fallback supported)
 - JWT tokens for API
@@ -122,64 +135,3 @@ npm run dev
 4. App saves purchase to DB and shows printable receipt
 
 ---
-
-## 🚀 Deployment Guide
-
-### Prerequisites
-- MongoDB Atlas cluster (connection string)
-- Razorpay account (Test Mode keys for staging; Live Mode for production)
-- Twilio account (or disable OTP for staging and use demo user)
-
-### Backend (Render)
-1. Create a new Web Service on Render. Repository: this project
-2. Root: `backend-nodejs/`
-3. Build Command: `npm install`
-4. Start Command: `npm start`
-5. Environment (Render → Settings → Environment): set all vars from `backend-nodejs/.env`
-6. Add `FRONTEND_URL` to your deployed frontend URL(s)
-
-### Frontend (Vercel or Netlify)
-- Vercel
-  1. Import project → select `frontend/` as root
-  2. Set `VITE_SERVER_URL` to your Render backend URL (e.g., `https://your-api.onrender.com`)
-  3. Deploy
-
-- Netlify
-  1. New site → Deploy from Git → Base directory: `frontend/`
-  2. Environment: `VITE_SERVER_URL=https://your-api.onrender.com`
-  3. Build command: `npm run build` ; Publish directory: `dist`
-
-### Razorpay (Live readiness)
-- Switch Razorpay to Live Mode
-- Replace keys in backend `.env`
-- Enable desired payment methods (UPI, Cards, Wallets, etc.) in Dashboard → Payment Methods
-- Update allowed domains/callbacks if using webhooks later
-
-### CORS
-- Backend `app/main.js` allows: `http://localhost:5173` and production domain(s)
-- Update `FRONTEND_URL` or CORS list if your domain changes
-
----
-
-## 🧪 Useful Endpoints
-- `GET /` → health
-- `GET /api` → API summary
-- `POST /api/v1/payments/create-order` → create Razorpay order
-- `POST /api/v1/payments/verify-payment` → verify signature
-- Orders CRUD under `/api/v1/orders`
-
----
-
-## 🛡️ Production Checklist
-- __Rotate secrets__ (JWT, Razorpay, Twilio)
-- __Set NODE_ENV=production__
-- __Point to MongoDB Atlas__ (not local)
-- __Enable UPI / methods in Razorpay Live__
-- __Add rate limiting__ (already enabled) and input validation (Joi)
-- __Configure logging__ (log level/file as needed)
-- __Set CORS to explicit domains__
-
----
-
-## 📜 License
-MIT
