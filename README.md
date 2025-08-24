@@ -16,7 +16,11 @@ A modern self‑checkout web app with phone OTP auth, demo mode, barcode scannin
 - __Purchase history__ with detailed receipt + print dialog
 - __Lazy loading__ and polished UI theme
 
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/f70ac18c-d2c1-4ac5-9b7d-7b5b2b244852" />![Uploading image.png…]()
+---
+## 📷Screenshots
+
+
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/f70ac18c-d2c1-4ac5-9b7d-7b5b2b244852" />
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/2dc8d7a1-24ec-4343-881a-e59667dde6d5" />
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/97ee36ae-6e11-4301-b9ed-9b93b759a6d1" />
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/dc30a9f4-dd17-4090-857a-125ed0126dd5" />
