@@ -21,10 +21,12 @@ A modern self‑checkout web app with phone OTP auth, demo mode, barcode scannin
 
 
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/f70ac18c-d2c1-4ac5-9b7d-7b5b2b244852" />
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/2dc8d7a1-24ec-4343-881a-e59667dde6d5" />
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/97ee36ae-6e11-4301-b9ed-9b93b759a6d1" />
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/dc30a9f4-dd17-4090-857a-125ed0126dd5" />
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/5a390bd4-0ffd-4d37-8164-7ee15af52c88" />
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/dc30a9f4-dd17-4090-857a-125ed0126dd5" />
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/2dc8d7a1-24ec-4343-881a-e59667dde6d5" />
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/2ff8ea0e-84a0-451d-bdb5-dd537e8ccaff" />
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/97ee36ae-6e11-4301-b9ed-9b93b759a6d1" />
+
 
 
 ---
@@ -114,7 +116,7 @@ npm run dev
 
 ---
 
-## ➕ Add products to the database
+## ➕ Add products to the database for testing
 
 - Seed sample products (recommended):
   - From `backend-nodejs/` run:
@@ -146,3 +148,10 @@ npm run dev
 4. App saves purchase to DB and shows printable receipt
 
 ---
+
+create a barcode image using any online generator for products in db(see seedDatabase.js).
+See Example below or Apple.
+
+![barcode (4)](https://github.com/user-attachments/assets/71e68629-55c8-40e4-9b37-24ecb5c937a2)
+
+
