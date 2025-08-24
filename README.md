@@ -27,8 +27,6 @@ A modern self‑checkout web app with phone OTP auth, demo mode, barcode scannin
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/2ff8ea0e-84a0-451d-bdb5-dd537e8ccaff" />
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/97ee36ae-6e11-4301-b9ed-9b93b759a6d1" />
 
-
-
 ---
 
 ## 📁 Project Structure
@@ -150,7 +148,7 @@ npm run dev
 ---
 
 create a barcode image using any online generator for products in db(see seedDatabase.js).
-See Example below or Apple.
+See Example below for Apple.
 
 ![barcode (4)](https://github.com/user-attachments/assets/71e68629-55c8-40e4-9b37-24ecb5c937a2)
 
